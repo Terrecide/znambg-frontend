@@ -1,7 +1,32 @@
 <script>
-  import nakama from "../nakama";
+  import { nakama } from "$lib/stores/nakama";
 
-  let num = 123;
+  let matchId = "";
+
+  async function findMatch() {
+    try {
+      // ep4
+      const rpcid = "find_match_js";
+      const matches = await $nakama.client.rpc($nakama.session, rpcid, {});
+
+      matchId = matches.payload.matchIds[0];
+      await $nakama.socket.joinMatch(matchId);
+      console.log("Matched joined!");
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async function sendAnswer(index) {
+    try {
+      // ep4
+      var data = { answer: index };
+      await $nakama.socket.sendMatchState(matchId, 4, JSON.stringify(data));
+      console.log("Answer data sent");
+    } catch (error) {
+      console.log(error);
+    }
+  }
 </script>
 
 <svelte:head>
@@ -9,7 +34,11 @@
   <meta name="description" content="Svelte demo app" />
 </svelte:head>
 
-<button on:click={() => nakama.findMatch()}>Play{num}</button>
+<button on:click={async () => await findMatch()}>Play</button>
+<button on:click={async () => await sendAnswer(1)}>Send Move 1</button>
+<button on:click={async () => await sendAnswer(2)}>Send Move 2</button>
+<button on:click={async () => await sendAnswer(3)}>Send Move 3</button>
+<button on:click={async () => await sendAnswer(4)}>Send Move 4</button>
 
 <style>
   section {

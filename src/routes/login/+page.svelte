@@ -1,15 +1,52 @@
 <script>
-  import Component1 from "./component1.svelte";
-  import Nakama from "../../nakama";
   import { goto } from "$app/navigation";
-  import { client } from "$lib/stores/auth";
+  import { nakama } from "$lib/stores/nakama";
   import { browser } from "$app/environment";
+  import { v4 as uuidv4 } from "uuid";
+  import { Client } from "@heroiclabs/nakama-js";
 
   let email = "";
   let password = "";
 
-  $: if (browser && $client) {
+  $: if (browser && !!$nakama.client) {
     goto("/");
+  }
+
+  async function authenticateDevice() {
+    $nakama.client = new Client("defaultkey", "localhost", "7350");
+    $nakama.client.ssl = false;
+
+    let deviceId = localStorage.getItem("deviceId");
+    if (!deviceId) {
+      deviceId = uuidv4();
+      localStorage.setItem("deviceId", deviceId);
+    }
+
+    $nakama.session = await $nakama.client.authenticateDevice(deviceId, true);
+    localStorage.setItem("user_id", $nakama.session.user_id);
+
+    // ep4
+    const trace = false;
+    $nakama.socket = $nakama.client.createSocket(false, trace);
+    await $nakama.socket.connect($nakama.session);
+  }
+
+  async function authenticateEmail(email, password) {
+    try {
+      $nakama.client = new Client("defaultkey", "localhost", "7350");
+      $nakama.client.ssl = false;
+
+      $nakama.session = await $nakama.client.authenticateEmail(email, password);
+      localStorage.setItem("user_id", $nakama.session.user_id);
+
+      const trace = false;
+      $nakama.socket = $nakama.client.createSocket(false, trace);
+      await $nakama.socket.connect($nakama.session, true);
+
+      console.log("User connected:", $nakama.session);
+    } catch (error) {
+      console.log(error);
+    }
   }
 </script>
 
@@ -17,7 +54,7 @@
   <h1>Znam BG</h1>
   <button
     class="btn btn-blue"
-    on:click={async () => await Nakama.authenticateDevice()}
+    on:click={async () => await authenticateDevice()}
   >
     Влез като гост
   </button>
@@ -45,7 +82,7 @@
       <button
         class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
         type="button"
-        on:click={async () => await Nakama.authenticateEmail(email, password)}
+        on:click={async () => await authenticateEmail(email, password)}
       >
         Влез
       </button>
