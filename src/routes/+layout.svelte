@@ -4,6 +4,7 @@
   import { goto } from "$app/navigation";
   import { browser } from "$app/environment";
   import { nakama } from "$lib/stores/nakama";
+  import { gameStateStore } from "$lib/stores/quiz";
 
   $: if (browser && !$nakama.client) {
     goto("/login");
@@ -18,21 +19,23 @@
 
       switch (result.op_code) {
         case 1:
-          console.log("vliza 1");
+          console.log("vliza 1", json, result.data);
+          $gameStateStore.gameStarted = true;
           /*this.gameStarted = true;
            this.setPlayerTurn(json); */
           break;
         case 2:
-          console.log("vliza 2", result.data);
+          console.log("vliza 2", json, result.data);
           /* this.updateBoard(json.board);
           this.updatePlayerTurn(); */
           break;
         case 3:
-          console.log("vliza 3");
+          console.log("vliza 3", json, result.data);
           /* this.endGame(json); */
           break;
         case 4:
           console.log("vliza 4");
+          $gameStateStore.gameStarted = false;
           /* this.endGame(json); */
           break;
       }
@@ -41,7 +44,9 @@
 </script>
 
 <div class="app">
-  <Header />
+  {#if browser && $nakama.client && !$gameStateStore.gameStarted}
+    <Header />
+  {/if}
 
   <main>
     <slot />
@@ -55,6 +60,8 @@
     display: flex;
     flex-direction: column;
     min-height: 100vh;
+    max-width: 540px;
+    margin: auto;
   }
 
   main {

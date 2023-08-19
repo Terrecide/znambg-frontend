@@ -1,4 +1,5 @@
 <script>
+  import { goto } from "$app/navigation";
   import { nakama } from "$lib/stores/nakama";
 
   let matchId = "";
@@ -11,18 +12,8 @@
 
       matchId = matches.payload.matchIds[0];
       await $nakama.socket.joinMatch(matchId);
+      goto(`/match?id=${matchId}`);
       console.log("Matched joined!");
-    } catch (error) {
-      console.log(error);
-    }
-  }
-
-  async function sendAnswer(index) {
-    try {
-      // ep4
-      var data = { answer: index };
-      await $nakama.socket.sendMatchState(matchId, 4, JSON.stringify(data));
-      console.log("Answer data sent");
     } catch (error) {
       console.log(error);
     }
@@ -35,10 +26,6 @@
 </svelte:head>
 
 <button on:click={async () => await findMatch()}>Play</button>
-<button on:click={async () => await sendAnswer(1)}>Send Move 1</button>
-<button on:click={async () => await sendAnswer(2)}>Send Move 2</button>
-<button on:click={async () => await sendAnswer(3)}>Send Move 3</button>
-<button on:click={async () => await sendAnswer(4)}>Send Move 4</button>
 
 <style>
   section {
