@@ -8,10 +8,14 @@
     try {
       // ep4
       const rpcid = "find_match_js";
-      const matches = await $nakama.client.rpc($nakama.session, rpcid, {});
+      const matches = await $nakama.client?.rpc($nakama.session, rpcid, {});
 
       matchId = matches.payload.matchIds[0];
-      await $nakama.socket.joinMatch(matchId);
+      const match = await $nakama.socket?.joinMatch(matchId);
+      console.log("Match Presences", match?.presences);
+      if (match?.presences) {
+        $nakama.presences = match?.presences;
+      }
       goto(`/match?id=${matchId}`);
       console.log("Matched joined!");
     } catch (error) {

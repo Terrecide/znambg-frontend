@@ -6,12 +6,15 @@
   import { nakama } from "$lib/stores/nakama";
   import { gameStateStore } from "$lib/stores/quiz";
 
+  let isOnMatchDefined = false;
+
   $: if (browser && !$nakama.client) {
     goto("/login");
   }
 
   //ep4
-  $: if (!!$nakama.socket) {
+  $: if (browser && !!$nakama.socket && !isOnMatchDefined) {
+    isOnMatchDefined = true;
     console.log("Registering socket");
     $nakama.socket.onmatchdata = (result) => {
       const json_string = new TextDecoder().decode(result.data);
@@ -22,12 +25,12 @@
           console.log("vliza 1", json, result.data);
           $gameStateStore.gameStarted = true;
           /*this.gameStarted = true;
-           this.setPlayerTurn(json); */
+             this.setPlayerTurn(json); */
           break;
         case 2:
           console.log("vliza 2", json, result.data);
           /* this.updateBoard(json.board);
-          this.updatePlayerTurn(); */
+            this.updatePlayerTurn(); */
           break;
         case 3:
           console.log("vliza 3", json, result.data);
@@ -38,6 +41,21 @@
           $gameStateStore.gameStarted = false;
           /* this.endGame(json); */
           break;
+      }
+    };
+
+    // When receiving a match presence event, check if the host left and if so recalculate the host presence
+    $nakama.socket.onmatchpresence = (matchPresence) => {
+      if (matchPresence.joins) {
+        $nakama.presences = [...$nakama.presences, ...matchPresence.joins];
+      }
+
+      if (matchPresence.leaves) {
+        matchPresence.leaves.forEach((player) => {
+          $nakama.presences = $nakama.presences?.filter(
+            (playerStore) => playerStore.user_id !== player.user_id
+          );
+        });
       }
     };
   }

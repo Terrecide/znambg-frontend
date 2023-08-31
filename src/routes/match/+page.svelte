@@ -1,4 +1,5 @@
 <script>
+  import { goto } from "$app/navigation";
   import { page } from "$app/stores";
   import { nakama } from "$lib/stores/nakama";
   import { gameStateStore } from "$lib/stores/quiz";
@@ -8,8 +9,12 @@
       // ep4
       let data = { position: index };
       let matchId = $page.url.searchParams.get("id");
+      if (!matchId) {
+        await goto("/");
+        return;
+      }
 
-      await $nakama.socket.sendMatchState(matchId, 4, JSON.stringify(data));
+      await $nakama.socket?.sendMatchState(matchId, 4, JSON.stringify(data));
       console.log("Answer data sent");
     } catch (error) {
       console.log(error);
@@ -18,6 +23,11 @@
 </script>
 
 {#if !$gameStateStore.gameStarted}
+  {#if $nakama.presences}
+    {#each $nakama.presences as player}
+      <h1>User: {player.username}</h1>
+    {/each}
+  {/if}
   Waiting for other players ....
 {:else}
   <button on:click={async () => await sendAnswer(1)}>Send Move 1</button>
