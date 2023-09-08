@@ -22,24 +22,37 @@
 
       switch (result.op_code) {
         case 1:
-          console.log("vliza 1", json, result.data);
+          console.log("Socket OpCode.START", json);
+          // @ts-ignore
+          $gameStateStore = json;
           $gameStateStore.gameStarted = true;
           /*this.gameStarted = true;
              this.setPlayerTurn(json); */
           break;
         case 2:
-          console.log("vliza 2", json, result.data);
+          console.log("Socket OpCode.UPDATE", json);
+          $gameStateStore = {
+            ...$gameStateStore,
+            ...json,
+          };
           /* this.updateBoard(json.board);
             this.updatePlayerTurn(); */
           break;
         case 3:
-          console.log("vliza 3", json, result.data);
+          console.log("Socket OpCode.DONE", json);
           /* this.endGame(json); */
           break;
         case 4:
-          console.log("vliza 4");
+          console.log("Socket OpCode.ANSWER");
           $gameStateStore.gameStarted = false;
           /* this.endGame(json); */
+          break;
+        case 5:
+          console.log("Socket OpCode.REJECTED");
+          break;
+        case 6:
+          console.log("Socket OpCode.CORRECT_ANSWER", json);
+          $gameStateStore.correctAnswer = json;
           break;
       }
     };

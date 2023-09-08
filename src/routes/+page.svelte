@@ -29,7 +29,9 @@
   <meta name="description" content="Svelte demo app" />
 </svelte:head>
 
-<button on:click={async () => await findMatch()}>Play</button>
+<button class="btn btn-blue" on:click={async () => await findMatch()}
+  >Play</button
+>
 
 <style>
   section {

@@ -40,7 +40,7 @@
       localStorage.setItem("user_id", $nakama.session.user_id);
 
       const trace = false;
-      $nakama.socket = $nakama.client.createSocket(false, trace);
+      $nakama.socket = $nakama.client.createSocket(false, trace).joinMatch().p;
       await $nakama.socket.connect($nakama.session, true);
 
       console.log("User connected:", $nakama.session);
@@ -101,15 +101,3 @@
     <button class="btn btn-blue">Apple</button>
   </div>
 </div>
-
-<style>
-  .btn {
-    @apply font-bold py-2 px-4 rounded;
-  }
-  .btn-blue {
-    @apply bg-blue-500 text-white;
-  }
-  .btn-blue:hover {
-    @apply bg-blue-700;
-  }
-</style>

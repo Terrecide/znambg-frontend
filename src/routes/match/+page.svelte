@@ -1,13 +1,13 @@
-<script>
+<script lang="ts">
   import { goto } from "$app/navigation";
   import { page } from "$app/stores";
   import { nakama } from "$lib/stores/nakama";
-  import { gameStateStore } from "$lib/stores/quiz";
+  import { gameStateStore, type CorrectAnswerMessage } from "$lib/stores/quiz";
 
-  async function sendAnswer(index) {
+  async function sendAnswer(questionId: string, answerId: string) {
     try {
       // ep4
-      let data = { position: index };
+      let data = { questionId, answerId };
       let matchId = $page.url.searchParams.get("id");
       if (!matchId) {
         await goto("/");
@@ -20,22 +20,63 @@
       console.log(error);
     }
   }
+
+  function buttonColor(
+    correctAnswer: CorrectAnswerMessage | null,
+    answerId: string
+  ): string {
+    if (correctAnswer) {
+      if (
+        correctAnswer.correctAnswerId !== answerId &&
+        correctAnswer.playerAnswerId !== answerId
+      ) {
+        return "btn-blue";
+      } else if (
+        correctAnswer.correctAnswerId === correctAnswer.playerAnswerId ||
+        correctAnswer.correctAnswerId === answerId
+      ) {
+        return "btn-green";
+      } else if (correctAnswer.playerAnswerId === answerId) {
+        return "btn-red";
+      }
+    }
+    return "btn-blue";
+  }
 </script>
 
+{#if $nakama.presences}
+  {#each $nakama.presences as player}
+    <h1>
+      User: {player.username}
+      {#if $gameStateStore.gameStarted}
+        {$gameStateStore.playersProgress[player.user_id] !== null
+          ? $gameStateStore.playersProgress[player.user_id] + 1
+          : 0}
+        /
+        {$gameStateStore.questions.length}
+      {/if}
+    </h1>
+  {/each}
+{/if}
+
 {#if !$gameStateStore.gameStarted}
-  {#if $nakama.presences}
-    {#each $nakama.presences as player}
-      <h1>User: {player.username}</h1>
-    {/each}
-  {/if}
   Waiting for other players ....
 {:else}
-  <button on:click={async () => await sendAnswer(1)}>Send Move 1</button>
-  <button on:click={async () => await sendAnswer(2)}>Send Move 2</button>
-  <button on:click={async () => await sendAnswer(3)}>Send Move 3</button>
-  <button on:click={async () => await sendAnswer(4)}>Send Move 4</button>
-  <button on:click={async () => await sendAnswer(5)}>Send Move 5</button>
-  <button on:click={async () => await sendAnswer(6)}>Send Move 6</button>
-  <button on:click={async () => await sendAnswer(7)}>Send Move 7</button>
-  <button on:click={async () => await sendAnswer(8)}>Send Move 8</button>
+  {#each $gameStateStore.questions as question}
+    <div class="mt-4">
+      <div class="text-xl text-center m-2">
+        {question.title}
+      </div>
+      <div class="grid grid-cols-1 justify-between gap-4">
+        {#each question.answers as answer}
+          <button
+            class="btn {buttonColor($gameStateStore.correctAnswer, answer._id)}"
+            on:click={async () => await sendAnswer(question._id, answer._id)}
+          >
+            {answer.text}
+          </button>
+        {/each}
+      </div>
+    </div>
+  {/each}
 {/if}
