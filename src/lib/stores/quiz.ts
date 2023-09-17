@@ -3,9 +3,13 @@ import { writable } from "svelte/store";
 type GameState = {
   gameStarted: boolean;
   questions: Question[];
-  playersProgress: { [userID: string]: number };
+  playersProgress: { [userID: string]: playerProgress };
   deadline: number;
   correctAnswer: CorrectAnswerMessage | null;
+  changeQuestion: {
+    nextQuestionIndex: number;
+  } | null;
+  tickRate: number;
 };
 
 export type CorrectAnswerMessage = {
@@ -25,10 +29,18 @@ export type Question = {
   answers: Answer[];
 };
 
+export type playerProgress = {
+  currentQuestionIndex: number | null;
+  timeLeftToAnswer: number;
+  timeBetweenQuestions: number;
+};
+
 export const gameStateStore = writable<GameState>({
   gameStarted: false,
   questions: [],
   playersProgress: {},
   deadline: 0,
   correctAnswer: null,
+  changeQuestion: null,
+  tickRate: 0,
 });
