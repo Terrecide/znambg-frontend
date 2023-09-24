@@ -57,6 +57,10 @@
           console.log("Socket OpCode.CHANGE_QUESTION", json);
           $gameStateStore.changeQuestion = json;
           break;
+        case 8:
+          console.log("Socket OpCode.PODIUM", json);
+          $gameStateStore.podium = json.podium;
+          break;
       }
     };
 

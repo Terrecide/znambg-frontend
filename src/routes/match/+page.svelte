@@ -97,6 +97,17 @@
 
 {#if !$gameStateStore.gameStarted}
   Waiting for other players ....
+{:else if $gameStateStore.podium?.length > 0}
+  <div>
+    1st Place: {$gameStateStore.podium[0].userId}({$gameStateStore.podium[0]
+      .score}) - {$gameStateStore.podium[0].rightAnswers}/{$gameStateStore
+      .podium[0].allAnswers}
+  </div>
+  <div>
+    2nd Place: {$gameStateStore.podium[1].userId}({$gameStateStore.podium[1]
+      .score}) - {$gameStateStore.podium[1].rightAnswers}/{$gameStateStore
+      .podium[1].allAnswers}
+  </div>
 {:else if questionToDisplay}
   <div class="mt-4">
     <div>
