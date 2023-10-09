@@ -2,11 +2,45 @@
   import { goto } from "$app/navigation";
   import { page } from "$app/stores";
   import { nakama } from "$lib/stores/nakama";
-  import { gameStateStore, type CorrectAnswerMessage } from "$lib/stores/quiz";
+  import {
+    gameStateStore,
+    type CorrectAnswerMessage,
+    type Question,
+  } from "$lib/stores/quiz";
+
+  let questionToDisplay: Question | undefined = undefined;
+  let count = 0;
+  let counterFn = setInterval(timer, 10); //10 will  run it every 100th of a second
+
+  $: counterToDisplay = 0;
+
+  function timer() {
+    if (count <= 0) {
+      clearInterval(counterFn);
+      counterToDisplay = 0;
+      return;
+    }
+
+    count--;
+    counterToDisplay = count / 100;
+  }
+
+  $: if ($gameStateStore.changeQuestion) {
+    questionToDisplay =
+      $gameStateStore.questions[
+        $gameStateStore.changeQuestion.nextQuestionIndex
+      ];
+
+    $gameStateStore.changeQuestion = null;
+    clearInterval(counterFn);
+    count = 1000;
+    counterFn = setInterval(timer, 10);
+  }
 
   async function sendAnswer(questionId: string, answerId: string) {
     try {
       // ep4
+      clearInterval(counterFn);
       let data = { questionId, answerId };
       let matchId = $page.url.searchParams.get("id");
       if (!matchId) {
@@ -49,8 +83,10 @@
     <h1>
       User: {player.username}
       {#if $gameStateStore.gameStarted}
-        {$gameStateStore.playersProgress[player.user_id] !== null
-          ? $gameStateStore.playersProgress[player.user_id] + 1
+        {$gameStateStore.playersProgress[player.user_id]
+          .currentQuestionIndex !== null
+          ? $gameStateStore.playersProgress[player.user_id]
+              .currentQuestionIndex + 1
           : 0}
         /
         {$gameStateStore.questions.length}
@@ -61,22 +97,35 @@
 
 {#if !$gameStateStore.gameStarted}
   Waiting for other players ....
-{:else}
-  {#each $gameStateStore.questions as question}
-    <div class="mt-4">
-      <div class="text-xl text-center m-2">
-        {question.title}
-      </div>
-      <div class="grid grid-cols-1 justify-between gap-4">
-        {#each question.answers as answer}
-          <button
-            class="btn {buttonColor($gameStateStore.correctAnswer, answer._id)}"
-            on:click={async () => await sendAnswer(question._id, answer._id)}
-          >
-            {answer.text}
-          </button>
-        {/each}
-      </div>
+{:else if $gameStateStore.podium?.length > 0}
+  <div>
+    1st Place: {$gameStateStore.podium[0].userId}({$gameStateStore.podium[0]
+      .score}) - {$gameStateStore.podium[0].rightAnswers}/{$gameStateStore
+      .podium[0].allAnswers}
+  </div>
+  <div>
+    2nd Place: {$gameStateStore.podium[1].userId}({$gameStateStore.podium[1]
+      .score}) - {$gameStateStore.podium[1].rightAnswers}/{$gameStateStore
+      .podium[1].allAnswers}
+  </div>
+{:else if questionToDisplay}
+  <div class="mt-4">
+    <div>
+      {counterToDisplay}
     </div>
-  {/each}
+    <div class="text-xl text-center m-2">
+      {questionToDisplay.title}
+    </div>
+    <div class="grid grid-cols-1 justify-between gap-4">
+      {#each questionToDisplay.answers as answer}
+        <button
+          class="btn {buttonColor($gameStateStore.correctAnswer, answer._id)}"
+          on:click={async () =>
+            await sendAnswer(questionToDisplay._id, answer._id)}
+        >
+          {answer.text}
+        </button>
+      {/each}
+    </div>
+  </div>
 {/if}

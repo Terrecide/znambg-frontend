@@ -44,7 +44,6 @@
           break;
         case 4:
           console.log("Socket OpCode.ANSWER");
-          $gameStateStore.gameStarted = false;
           /* this.endGame(json); */
           break;
         case 5:
@@ -53,6 +52,14 @@
         case 6:
           console.log("Socket OpCode.CORRECT_ANSWER", json);
           $gameStateStore.correctAnswer = json;
+          break;
+        case 7:
+          console.log("Socket OpCode.CHANGE_QUESTION", json);
+          $gameStateStore.changeQuestion = json;
+          break;
+        case 8:
+          console.log("Socket OpCode.PODIUM", json);
+          $gameStateStore.podium = json.podium;
           break;
       }
     };
