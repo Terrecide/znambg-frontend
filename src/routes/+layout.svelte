@@ -82,9 +82,9 @@
 </script>
 
 <div class="app">
-  {#if browser && $nakama.client && !$gameStateStore.gameStarted}
+  <!-- {#if browser && $nakama.client && !$gameStateStore.gameStarted}
     <Header />
-  {/if}
+  {/if} -->
 
   <main>
     <slot />

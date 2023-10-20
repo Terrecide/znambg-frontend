@@ -2,6 +2,25 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+	font-family: 'Binaria-Regular';
+	src: url('/fonts/binaria/Binaria-Regular.ttf');
+}
+
+@font-face {
+	font-family: 'Binaria-Bold';
+	src: url('/fonts/binaria/Binaria-Bold.ttf');
+}
+
+@font-face {
+	font-family: 'Neuropol';
+	src: url('/fonts/neuropol/neuropol.otf');
+}
+
+h1 {
+	@apply font-neuropol text-2xl;
+}
+
 :root {
 	--font-body: Arial, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu,
 		Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
@@ -19,40 +38,13 @@
 }
 
 body {
+	@apply font-binaria_regular bg-ecru;
 	min-height: 100vh;
 	margin: 0;
 	background-attachment: fixed;
-	background-color: var(--color-bg-1);
 	background-size: 100vw 100vh;
-	background-image: radial-gradient(
-			50% 50% at 50% 50%,
-			rgba(255, 255, 255, 0.75) 0%,
-			rgba(255, 255, 255, 0) 100%
-		),
-		linear-gradient(180deg, var(--color-bg-0) 0%, var(--color-bg-1) 15%, var(--color-bg-2) 50%);
 }
 
-.btn {
-    @apply font-bold py-2 px-4 rounded;
-}
-
-.btn-blue {
-    @apply bg-blue-500 text-white;
-}
-.btn-blue:hover {
-    @apply bg-blue-700;
-}
-
-.btn-green {
-    @apply bg-green-500 text-white;
-}
-.btn-green:hover {
-    @apply bg-green-700;
-}
-
-.btn-red {
-    @apply bg-red-500 text-white;
-}
-.btn-red:hover {
-    @apply bg-red-700;
+.main-container {
+	@apply flex flex-col items-center gap-4 mx-auto
 }
