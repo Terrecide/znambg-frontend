@@ -18,7 +18,7 @@
 <style>
   .btn {
     @apply font-binaria_bold py-2 px-4 rounded-2xl text-lg;
-    width: 240px;
+    width: 200px;
   }
 
   .btn:active {

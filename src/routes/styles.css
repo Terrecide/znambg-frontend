@@ -46,5 +46,5 @@ body {
 }
 
 .main-container {
-	@apply flex flex-col items-center gap-4 mx-auto
+	@apply flex flex-col flex-grow items-center justify-center gap-4 px-6
 }
