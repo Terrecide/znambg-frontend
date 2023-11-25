@@ -16,32 +16,36 @@
   let password = "";
 
   async function authenticateDevice() {
-    $nakama.client = new Client("defaultkey", "localhost", "7351");
-    $nakama.client.ssl = false;
+    try {
+      $nakama.client = new Client("defaultkey", "localhost", "7350");
+      $nakama.client.ssl = false;
 
-    let deviceId = Cookies.get("znambg-device-id");
-    if (!deviceId) {
-      deviceId = uuidv4();
-      Cookies.set("znambg-device-id", deviceId, { path: "/" });
+      let deviceId = Cookies.get("znambg-device-id");
+      if (!deviceId) {
+        deviceId = uuidv4();
+        Cookies.set("znambg-device-id", deviceId, { path: "/" });
+      }
+
+      $nakama.session = await $nakama.client.authenticateDevice(deviceId, true);
+      Cookies.set("znambg-user_id", $nakama.session.user_id, { path: "/" });
+      Cookies.set("znambg-token", $nakama.session.token, { path: "/" });
+      Cookies.set("znambg-refresh_token", $nakama.session.refresh_token, {
+        path: "/",
+      });
+
+      // ep4
+      const trace = false;
+      $nakama.socket = $nakama.client.createSocket(false, trace);
+      await $nakama.socket.connect($nakama.session);
+      goto("/");
+    } catch (error) {
+      console.log(error);
     }
-
-    $nakama.session = await $nakama.client.authenticateDevice(deviceId, true);
-    Cookies.set("znambg-user_id", $nakama.session.user_id, { path: "/" });
-    Cookies.set("znambg-token", $nakama.session.token, { path: "/" });
-    Cookies.set("znambg-refresh_token", $nakama.session.refresh_token, {
-      path: "/",
-    });
-
-    // ep4
-    const trace = false;
-    $nakama.socket = $nakama.client.createSocket(false, trace);
-    await $nakama.socket.connect($nakama.session);
-    goto("/");
   }
 
   async function authenticateEmail(email, password) {
     try {
-      $nakama.client = new Client("defaultkey", "localhost", "7351");
+      $nakama.client = new Client("defaultkey", "localhost", "7350");
       $nakama.client.ssl = false;
 
       $nakama.session = await $nakama.client.authenticateEmail(

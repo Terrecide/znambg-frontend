@@ -17,7 +17,7 @@
 
   async function register(email, password) {
     try {
-      $nakama.client = new Client("defaultkey", "localhost", "7351");
+      $nakama.client = new Client("defaultkey", "localhost", "7350");
       $nakama.client.ssl = false;
 
       $nakama.session = await $nakama.client.authenticateEmail(

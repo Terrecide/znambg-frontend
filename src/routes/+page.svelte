@@ -42,7 +42,7 @@
   }
 
   async function logout() {
-    $nakama.client = new Client("defaultkey", "localhost", "7351");
+    $nakama.client = new Client("defaultkey", "localhost", "7350");
     await $nakama.client.sessionLogout(
       $nakama.session,
       $nakama.session.token,

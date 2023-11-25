@@ -17,7 +17,7 @@
         console.log("vliza init");
         isOnMatchDefined = true;
         console.log("Registering socket");
-        $nakama.client = new Client("defaultkey", "localhost", "7351");
+        $nakama.client = new Client("defaultkey", "localhost", "7350");
         $nakama.client.ssl = false;
         $nakama.session = Session.restore(
           data.user.token,
