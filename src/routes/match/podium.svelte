@@ -3,6 +3,7 @@
   import Button from "$lib/components/shared/button.svelte";
   import { ButtonColors } from "$lib/components/shared/types";
   import { gameStateStore } from "$lib/stores/quiz";
+  import { FacebookLogo, GoogleLogo } from "phosphor-svelte";
 
   $: maxAnswer = Math.max(
     ...$gameStateStore.podium.map((podium) => podium.score)
@@ -26,6 +27,13 @@
         <span>{Math.floor(podium.score)}</span>
       </div>
     {/each}
+  </div>
+  <div class="flex flex-col">
+    <div class="font-binaria_bold">Предизвикай приятели</div>
+    <div class="flex justify-center gap-6 w-full">
+      <FacebookLogo size={24} />
+      <GoogleLogo size={24} />
+    </div>
   </div>
 
   <Button

@@ -1,83 +1,96 @@
 <script>
-  import Header from "./Header.svelte";
   import "./styles.css";
   import { goto } from "$app/navigation";
   import { browser } from "$app/environment";
   import { nakama } from "$lib/stores/nakama";
   import { gameStateStore } from "$lib/stores/quiz";
+  import { Client, Session } from "@heroiclabs/nakama-js";
 
   let isOnMatchDefined = false;
 
-  $: if (browser && !$nakama.client) {
-    goto("/login");
-  }
+  export let data;
 
   //ep4
-  $: if (browser && !!$nakama.socket && !isOnMatchDefined) {
-    isOnMatchDefined = true;
-    console.log("Registering socket");
-    $nakama.socket.onmatchdata = (result) => {
-      const json_string = new TextDecoder().decode(result.data);
-      const json = json_string ? JSON.parse(json_string) : "";
+  $: if (browser && data.user && !isOnMatchDefined) {
+    (async () => {
+      try {
+        console.log("vliza init");
+        isOnMatchDefined = true;
+        console.log("Registering socket");
+        $nakama.client = new Client("defaultkey", "localhost", "7351");
+        $nakama.client.ssl = false;
+        $nakama.session = Session.restore(
+          data.user.token,
+          data.user.refreshToken
+        );
+        $nakama.socket = $nakama.client.createSocket(false, false);
+        const res = await $nakama.socket.connect($nakama.session);
+        $nakama.socket.onmatchdata = (result) => {
+          const json_string = new TextDecoder().decode(result.data);
+          const json = json_string ? JSON.parse(json_string) : "";
 
-      switch (result.op_code) {
-        case 1:
-          console.log("Socket OpCode.START", json);
-          // @ts-ignore
-          $gameStateStore = json;
-          $gameStateStore.gameStarted = true;
-          /*this.gameStarted = true;
-             this.setPlayerTurn(json); */
-          break;
-        case 2:
-          console.log("Socket OpCode.UPDATE", json);
-          $gameStateStore = {
-            ...$gameStateStore,
-            ...json,
-          };
-          /* this.updateBoard(json.board);
-            this.updatePlayerTurn(); */
-          break;
-        case 3:
-          console.log("Socket OpCode.DONE", json);
-          /* this.endGame(json); */
-          break;
-        case 4:
-          console.log("Socket OpCode.ANSWER");
-          /* this.endGame(json); */
-          break;
-        case 5:
-          console.log("Socket OpCode.REJECTED");
-          break;
-        case 6:
-          console.log("Socket OpCode.CORRECT_ANSWER", json);
-          $gameStateStore.correctAnswer = json;
-          break;
-        case 7:
-          console.log("Socket OpCode.CHANGE_QUESTION", json);
-          $gameStateStore.changeQuestion = json;
-          break;
-        case 8:
-          console.log("Socket OpCode.PODIUM", json);
-          $gameStateStore.podium = json.podium;
-          break;
-      }
-    };
+          switch (result.op_code) {
+            case 1:
+              console.log("Socket OpCode.START", json);
+              // @ts-ignore
+              $gameStateStore = json;
+              $gameStateStore.gameStarted = true;
+              /*this.gameStarted = true;
+               this.setPlayerTurn(json); */
+              break;
+            case 2:
+              console.log("Socket OpCode.UPDATE", json);
+              $gameStateStore = {
+                ...$gameStateStore,
+                ...json,
+              };
+              /* this.updateBoard(json.board);
+              this.updatePlayerTurn(); */
+              break;
+            case 3:
+              console.log("Socket OpCode.DONE", json);
+              /* this.endGame(json); */
+              break;
+            case 4:
+              console.log("Socket OpCode.ANSWER");
+              /* this.endGame(json); */
+              break;
+            case 5:
+              console.log("Socket OpCode.REJECTED");
+              break;
+            case 6:
+              console.log("Socket OpCode.CORRECT_ANSWER", json);
+              $gameStateStore.correctAnswer = json;
+              break;
+            case 7:
+              console.log("Socket OpCode.CHANGE_QUESTION", json);
+              $gameStateStore.changeQuestion = json;
+              break;
+            case 8:
+              console.log("Socket OpCode.PODIUM", json);
+              $gameStateStore.podium = json.podium;
+              break;
+          }
+        };
 
-    // When receiving a match presence event, check if the host left and if so recalculate the host presence
-    $nakama.socket.onmatchpresence = (matchPresence) => {
-      if (matchPresence.joins) {
-        $nakama.presences = [...$nakama.presences, ...matchPresence.joins];
-      }
+        // When receiving a match presence event, check if the host left and if so recalculate the host presence
+        $nakama.socket.onmatchpresence = (matchPresence) => {
+          if (matchPresence.joins) {
+            $nakama.presences = [...$nakama.presences, ...matchPresence.joins];
+          }
 
-      if (matchPresence.leaves) {
-        matchPresence.leaves.forEach((player) => {
-          $nakama.presences = $nakama.presences?.filter(
-            (playerStore) => playerStore.user_id !== player.user_id
-          );
-        });
+          if (matchPresence.leaves) {
+            matchPresence.leaves.forEach((player) => {
+              $nakama.presences = $nakama.presences?.filter(
+                (playerStore) => playerStore.user_id !== player.user_id
+              );
+            });
+          }
+        };
+      } catch (error) {
+        console.log(error);
       }
-    };
+    })();
   }
 </script>
 

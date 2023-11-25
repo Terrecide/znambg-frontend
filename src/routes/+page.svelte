@@ -6,24 +6,9 @@
   import ZnamLogo from "$lib/components/shared/znamLogo.svelte";
   import Button from "$lib/components/shared/button.svelte";
   import { ButtonColors } from "$lib/components/shared/types";
+  import Cookies from "js-cookie";
 
   let matchId = "";
-
-  if (browser) {
-    let token = localStorage.getItem("znambg-token");
-    let refreshToken = localStorage.getItem("znambg-refresh_token");
-    if (token && refreshToken) {
-      $nakama.session = Session.restore(token, refreshToken);
-      localStorage.setItem("znambg-token", $nakama.session.token);
-      localStorage.setItem(
-        "znambg-refresh_token",
-        $nakama.session.refresh_token
-      );
-      console.log("REAUTH: ", $nakama.session);
-
-      goto("/");
-    }
-  }
 
   async function findMatch() {
     try {
@@ -57,16 +42,18 @@
   }
 
   async function logout() {
-    $nakama.client = new Client("defaultkey", "localhost", "7350");
+    $nakama.client = new Client("defaultkey", "localhost", "7351");
     await $nakama.client.sessionLogout(
       $nakama.session,
       $nakama.session.token,
       $nakama.session.refreshToken
     );
-    localStorage.removeItem("znambg-token");
-    localStorage.removeItem("znambg-refresh_token");
+    Cookies.remove("znambg-token", { path: "/" });
+    Cookies.remove("znambg-refresh_token", { path: "/" });
+    Cookies.remove("znambg-user_id", { path: "/" });
+    Cookies.remove("znambg-device-id", { path: "/" });
 
-    goto("/login");
+    window.location.href = "/login";
   }
 </script>
 
@@ -77,6 +64,10 @@
 
 <div class="main-container">
   <ZnamLogo classes="w-32" />
+  <div class="flex flex-col">
+    <div class="font-binaria_bold">Твоите жокери:</div>
+    <div class="flex justify-center gap-6 w-full" />
+  </div>
   <Button
     text="Намери игра"
     color={ButtonColors.pink}

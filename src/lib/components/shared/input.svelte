@@ -10,7 +10,7 @@
   }
 </script>
 
-<div>
+<div class="w-full">
   <label>
     {label}
     <input class="input" use:typeAction bind:value {placeholder} />

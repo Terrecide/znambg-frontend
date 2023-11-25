@@ -3,41 +3,21 @@
   import { nakama } from "$lib/stores/nakama";
   import { browser } from "$app/environment";
   import { v4 as uuidv4 } from "uuid";
-  import { Client } from "@heroiclabs/nakama-js";
+  import { Client, Session } from "@heroiclabs/nakama-js";
   import ZnamLogo from "$lib/components/shared/znamLogo.svelte";
   import Input from "$lib/components/shared/input.svelte";
   import Button from "$lib/components/shared/button.svelte";
   import { ButtonColors } from "$lib/components/shared/types";
   import { FacebookLogo, GoogleLogo } from "phosphor-svelte";
+  import Cookies from "js-cookie";
 
   let email = "";
   let password = "";
   let repeatPassword = "";
 
-  $: if (browser && !!$nakama.client) {
-    goto("/");
-  }
-  console.log($nakama.client);
-
-  if (browser) {
-    let token = localStorage.getItem("znambg-token");
-    let refreshToken = localStorage.getItem("znambg-refresh_token");
-    if (token && refreshToken) {
-      $nakama.session = Session.restore(token, refreshToken);
-      localStorage.setItem("znambg-token", $nakama.session.token);
-      localStorage.setItem(
-        "znambg-refresh_token",
-        $nakama.session.refresh_token
-      );
-      console.log("REAUTH");
-
-      goto("/");
-    }
-  }
-
   async function register(email, password) {
     try {
-      $nakama.client = new Client("defaultkey", "localhost", "7350");
+      $nakama.client = new Client("defaultkey", "localhost", "7351");
       $nakama.client.ssl = false;
 
       $nakama.session = await $nakama.client.authenticateEmail(
@@ -45,12 +25,11 @@
         password,
         true
       );
-      localStorage.setItem("znambg-user_id", $nakama.session.user_id);
-      localStorage.setItem("znambg-token", $nakama.session.token);
-      localStorage.setItem(
-        "znambg-refresh_token",
-        $nakama.session.refresh_token
-      );
+      Cookies.set("znambg-user_id", $nakama.session.user_id, { path: "/" });
+      Cookies.set("znambg-token", $nakama.session.token, { path: "/" });
+      Cookies.set("znambg-refresh_token", $nakama.session.refresh_token, {
+        path: "/",
+      });
 
       const trace = false;
       $nakama.socket = $nakama.client.createSocket(false, trace);
@@ -67,7 +46,7 @@
   <ZnamLogo />
   <h1>Регистрация</h1>
   <!--  -->
-  <form class="flex flex-col gap-4 m-0 w-full">
+  <form class="flex flex-col items-center justify-between gap-4 m-0">
     <Input type="email" placeholder="Име" bind:value={email} />
     <Input type="password" placeholder="Парола" bind:value={password} />
     <Input

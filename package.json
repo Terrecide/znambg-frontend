@@ -29,6 +29,7 @@
 	"type": "module",
 	"dependencies": {
 		"@heroiclabs/nakama-js": "^2.6.1",
+		"js-cookie": "^3.0.5",
 		"uuid": "^9.0.0"
 	}
 }
