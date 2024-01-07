@@ -48,3 +48,7 @@ body {
 .main-container {
 	@apply flex flex-col flex-grow items-center justify-center gap-4 px-6
 }
+
+.error {
+    @apply text-rg text-red pl-2;
+}

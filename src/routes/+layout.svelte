@@ -5,24 +5,26 @@
   import { nakama } from "$lib/stores/nakama";
   import { gameStateStore } from "$lib/stores/quiz";
   import { Client, Session } from "@heroiclabs/nakama-js";
+  import { page } from "$app/stores";
 
   let isOnMatchDefined = false;
+  const unprotected = ["/login", "/register"];
 
   export let data;
 
   //ep4
-  $: if (browser && data.user && !isOnMatchDefined) {
+  $: if (browser && data.user?.token && !isOnMatchDefined) {
     (async () => {
       try {
-        console.log("vliza init");
         isOnMatchDefined = true;
         console.log("Registering socket");
-        $nakama.client = new Client("defaultkey", "localhost", "7350");
+        $nakama.client = new Client("defaultkey", "127.0.0.1", "7350");
         $nakama.client.ssl = false;
         $nakama.session = Session.restore(
           data.user.token,
           data.user.refreshToken
         );
+        /* TODO: implement token expire logic */
         $nakama.socket = $nakama.client.createSocket(false, false);
         const res = await $nakama.socket.connect($nakama.session);
         $nakama.socket.onmatchdata = (result) => {
@@ -87,6 +89,10 @@
             });
           }
         };
+
+        if (unprotected.includes($page.url.pathname)) {
+          goto("/");
+        }
       } catch (error) {
         console.log(error);
       }

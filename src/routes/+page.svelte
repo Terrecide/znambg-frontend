@@ -14,7 +14,6 @@
     try {
       // ep4
       const rpcid = "find_match_js";
-      console.log($nakama.session);
       const matches = await $nakama.client.rpc($nakama.session, rpcid, {});
 
       matchId = matches.payload.matchIds[0];
@@ -42,7 +41,7 @@
   }
 
   async function logout() {
-    $nakama.client = new Client("defaultkey", "localhost", "7350");
+    $nakama.client = new Client("defaultkey", "127.0.0.1", "7350");
     await $nakama.client.sessionLogout(
       $nakama.session,
       $nakama.session.token,

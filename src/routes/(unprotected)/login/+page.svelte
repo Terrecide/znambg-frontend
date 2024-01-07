@@ -11,13 +11,32 @@
   import Button from "$lib/components/shared/button.svelte";
   import { ButtonColors } from "$lib/components/shared/types";
   import Cookies from "js-cookie";
+  import * as yup from "yup";
+  import { createForm } from "felte";
+  import { validator } from "@felte/validator-yup";
+  import { onMount } from "svelte";
+  import { authErrorToText } from "$lib/services/auth";
 
-  let email = "";
-  let password = "";
+  let schema = yup.object().shape({
+    email: yup
+      .string()
+      .required("Полето е задължилтено")
+      .email("Въведете валиден имейл")
+      .default("")
+      .label("Email address"),
+    password: yup
+      .string()
+      .min(8, "Въведете минимум 8 символа")
+      .required("Полето е задължилтено")
+      .default("")
+      .label("Phone"),
+  });
+
+  let apiError = "";
 
   async function authenticateDevice() {
     try {
-      $nakama.client = new Client("defaultkey", "localhost", "7350");
+      $nakama.client = new Client("defaultkey", "127.0.0.1", "7350");
       $nakama.client.ssl = false;
 
       let deviceId = Cookies.get("znambg-device-id");
@@ -45,7 +64,7 @@
 
   async function authenticateEmail(email, password) {
     try {
-      $nakama.client = new Client("defaultkey", "localhost", "7350");
+      $nakama.client = new Client("defaultkey", "127.0.0.1", "7350");
       $nakama.client.ssl = false;
 
       $nakama.session = await $nakama.client.authenticateEmail(
@@ -59,14 +78,29 @@
         path: "/",
       });
       const trace = false;
-      $nakama.socket = $nakama.client.createSocket(false, trace).joinMatch();
-      await $nakama.socket.connect($nakama.session, true);
-
+      $nakama.socket = await $nakama.client
+        .createSocket(false, trace)
+        .joinMatch();
+      const response = await $nakama.socket.connect($nakama.session, true);
+      console.log(response);
+      await goto("/");
       console.log("User connected:", $nakama.session);
     } catch (error) {
       console.log(error);
+      apiError = authErrorToText(error.statusText);
     }
   }
+
+  onMount(() => {
+    setFields(schema.cast());
+  });
+
+  const { form, errors, setData, data, setFields } = createForm({
+    extend: validator({ schema }),
+    onSubmit: async (values) => {
+      await authenticateEmail(values.email, values.password);
+    },
+  });
 </script>
 
 <div class="main-container">
@@ -78,14 +112,27 @@
     on:handleClick={async () => await authenticateDevice()}
   />
   или
-  <form class="flex flex-col items-center justify-between gap-4 m-0">
-    <Input type="email" placeholder="Име" bind:value={email} />
-    <Input type="password" placeholder="Парола" bind:value={password} />
-    <Button
-      color={ButtonColors.green}
-      text="Влез"
-      on:handleClick={async () => await authenticateEmail(email, password)}
+  <form
+    use:form
+    on:submit|preventDefault
+    class="flex flex-col items-center justify-between gap-4 m-0"
+  >
+    <Input
+      type="email"
+      name="email"
+      placeholder="Имейл"
+      error={$errors["email"]}
     />
+    <Input
+      type="password"
+      name="password"
+      placeholder="Парола"
+      error={$errors["password"]}
+    />
+    <Button color={ButtonColors.green} text="Влез" type="submit" />
+    {#if apiError}
+      <p class="error">{apiError}</p>
+    {/if}
     <!--       <a
         class="inline-block align-baseline font-bold text-sm text-blue-500 hover:text-blue-800"
         href="#"
