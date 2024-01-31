@@ -77,6 +77,19 @@
     }
     return "";
   }
+
+  async function sendJokerRemoveQuestion() {
+    try {
+      let matchId = $page.url.searchParams.get("id");
+      if (!matchId) {
+        await goto("/");
+        return;
+      }
+      $nakama.socket?.sendMatchState(matchId, 9, "");
+    } catch (error) {
+      console.log(error);
+    }
+  }
 </script>
 
 <div class="main-container justify-start">
@@ -130,6 +143,7 @@
         {/each}
       </div>
     {/if}
+    <div on:click={sendJokerRemoveQuestion}>joker 1</div>
   </div>
 </div>
 

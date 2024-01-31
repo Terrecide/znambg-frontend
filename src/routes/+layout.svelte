@@ -6,6 +6,7 @@
   import { gameStateStore } from "$lib/stores/quiz";
   import { Client, Session } from "@heroiclabs/nakama-js";
   import { page } from "$app/stores";
+  import { OpCode } from "$lib/components/shared/types";
 
   let isOnMatchDefined = false;
   const unprotected = ["/login", "/register"];
@@ -32,7 +33,7 @@
           const json = json_string ? JSON.parse(json_string) : "";
 
           switch (result.op_code) {
-            case 1:
+            case OpCode.START:
               console.log("Socket OpCode.START", json);
               // @ts-ignore
               $gameStateStore = json;
@@ -40,7 +41,7 @@
               /*this.gameStarted = true;
                this.setPlayerTurn(json); */
               break;
-            case 2:
+            case OpCode.UPDATE:
               console.log("Socket OpCode.UPDATE", json);
               $gameStateStore = {
                 ...$gameStateStore,
@@ -49,28 +50,36 @@
               /* this.updateBoard(json.board);
               this.updatePlayerTurn(); */
               break;
-            case 3:
+            case OpCode.DONE:
               console.log("Socket OpCode.DONE", json);
               /* this.endGame(json); */
               break;
-            case 4:
+            case OpCode.ANSWER:
               console.log("Socket OpCode.ANSWER");
               /* this.endGame(json); */
               break;
-            case 5:
+            case OpCode.REJECTED:
               console.log("Socket OpCode.REJECTED");
               break;
-            case 6:
+            case OpCode.CORRECT_ANSWER:
               console.log("Socket OpCode.CORRECT_ANSWER", json);
               $gameStateStore.correctAnswer = json;
               break;
-            case 7:
+            case OpCode.CHANGE_QUESTION:
               console.log("Socket OpCode.CHANGE_QUESTION", json);
               $gameStateStore.changeQuestion = json;
               break;
-            case 8:
+            case OpCode.PODIUM:
               console.log("Socket OpCode.PODIUM", json);
               $gameStateStore.podium = json.podium;
+              break;
+            case OpCode.JOKER_REMOVE_QUESTIONS:
+              console.log(
+                "Socket OpCode.JOKER_REMOVE_QUESTIONS",
+                json.answersToRemove,
+                $gameStateStore
+              );
+              /* $gameStateStore.podium = json.podium; */
               break;
           }
         };
