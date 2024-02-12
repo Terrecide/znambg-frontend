@@ -1,20 +1,16 @@
 <script>
   import { goto } from "$app/navigation";
-  import { nakama } from "$lib/stores/nakama";
-  import { browser } from "$app/environment";
-  import { v4 as uuidv4 } from "uuid";
-  import { Client, Session } from "@heroiclabs/nakama-js";
   import ZnamLogo from "$lib/components/shared/znamLogo.svelte";
   import Input from "$lib/components/shared/input.svelte";
   import Button from "$lib/components/shared/button.svelte";
   import { ButtonColors } from "$lib/components/shared/types";
   import { FacebookLogo, GoogleLogo } from "phosphor-svelte";
-  import Cookies from "js-cookie";
   import * as yup from "yup";
   import { createForm } from "felte";
   import { validator } from "@felte/validator-yup";
   import { onMount } from "svelte";
-  import { authErrorToText } from "$lib/services/auth";
+  import authStore from "$lib/stores/authStore";
+  import { loginGoogle, registerUser } from "$lib/services/auth.service";
 
   let apiError = "";
   let schema = yup.object().shape({
@@ -43,33 +39,6 @@
       .default("")
       .label("RepeatPhone"),
   });
-  async function register(name, email, password) {
-    try {
-      $nakama.client = new Client("defaultkey", "127.0.0.1", "7350");
-      $nakama.client.ssl = false;
-
-      $nakama.session = await $nakama.client.authenticateEmail(
-        email,
-        password,
-        true,
-        name
-      );
-      Cookies.set("znambg-user_id", $nakama.session.user_id, { path: "/" });
-      Cookies.set("znambg-token", $nakama.session.token, { path: "/" });
-      Cookies.set("znambg-refresh_token", $nakama.session.refresh_token, {
-        path: "/",
-      });
-
-      const trace = false;
-      $nakama.socket = $nakama.client.createSocket(false, trace);
-      await $nakama.socket.connect($nakama.session, true);
-      goto("/");
-      console.log("User connected:", $nakama.session);
-    } catch (error) {
-      console.log(error);
-      apiError = authErrorToText(error.statusText);
-    }
-  }
 
   onMount(() => {
     setFields(schema.cast());
@@ -78,9 +47,13 @@
   const { form, errors, setData, data, setFields } = createForm({
     extend: validator({ schema }),
     onSubmit: async (values) => {
-      await register(values.name, values.email, values.password);
+      await registerUser(values.email, values.password, values.name);
     },
   });
+
+  $: if ($authStore.isLoggedIn) {
+    goto("/");
+  }
 </script>
 
 <div class="main-container">
@@ -118,8 +91,12 @@
   </form>
   или
   <div class="flex justify-center gap-6 w-full">
-    <FacebookLogo size={24} />
-    <GoogleLogo size={24} />
+    <div class="cursor-pointer" on:click={() => {}}>
+      <FacebookLogo size={24} />
+    </div>
+    <div class="cursor-pointer" on:click={() => loginGoogle()}>
+      <GoogleLogo size={24} />
+    </div>
   </div>
   <div>
     Имаш акаунт? <a href="/login" class="underline">Влез в профила си</a>

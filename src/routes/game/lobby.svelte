@@ -3,29 +3,24 @@
   import { page } from "$app/stores";
   import Button from "$lib/components/shared/button.svelte";
   import { ButtonColors } from "$lib/components/shared/types";
-  import { nakama } from "$lib/stores/nakama";
   import Avatar from "$lib/components/shared/avatar.svelte";
+  import { gameState } from "$lib/stores/game";
 
   function leaveMatch() {
-    try {
-      $nakama.socket?.leaveMatch($page.url.searchParams.get("id"));
-      goto("/");
-    } catch (error) {
-      console.log(error);
-    }
+    goto("/");
   }
 </script>
 
 <div class="main-container">
   <div class="players">
-    {#if $nakama.presences}
-      {#each $nakama.presences as player, i}
+    {#if $gameState.required}
+      {#each new Array($gameState.required) as _, i}
         <div class="player player-{i + 1}">
-          <Avatar />{player.username}
+          <Avatar />{i}
         </div>
       {/each}
-      {#if $nakama.presences.length < 4}
-        {#each new Array(4 - $nakama.presences.length) as _}
+      {#if $gameState.required < 4}
+        {#each new Array(4 - $gameState.required) as _}
           <div class="player no-player">
             <Avatar empty={true} />Търси се играч
           </div>

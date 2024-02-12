@@ -1,58 +1,13 @@
 <script>
   import { goto } from "$app/navigation";
-  import { nakama } from "$lib/stores/nakama";
-  import { browser } from "$app/environment";
-  import { Client, Session } from "@heroiclabs/nakama-js";
   import ZnamLogo from "$lib/components/shared/znamLogo.svelte";
   import Button from "$lib/components/shared/button.svelte";
   import { ButtonColors } from "$lib/components/shared/types";
-  import Cookies from "js-cookie";
+  import { getAuth } from "firebase/auth";
+  import authStore from "$lib/stores/authStore";
 
-  let matchId = "";
-
-  async function findMatch() {
-    try {
-      // ep4
-      const rpcid = "find_match_js";
-      const matches = await $nakama.client.rpc($nakama.session, rpcid, {});
-
-      matchId = matches.payload.matchIds[0];
-      const match = await $nakama.socket?.joinMatch(matchId);
-      console.log("Match Presences", match?.presences);
-      if (match?.presences) {
-        $nakama.presences = match?.presences;
-      }
-      goto(`/match?id=${matchId}`);
-      console.log("Matched joined!");
-    } catch (error) {
-      console.log(error);
-    }
-  }
-
-  async function sendAnswer(index) {
-    try {
-      // ep4
-      var data = { answer: index };
-      await $nakama.socket.sendMatchState(matchId, 4, JSON.stringify(data));
-      console.log("Answer data sent");
-    } catch (error) {
-      console.log(error);
-    }
-  }
-
-  async function logout() {
-    $nakama.client = new Client("defaultkey", "127.0.0.1", "7350");
-    await $nakama.client.sessionLogout(
-      $nakama.session,
-      $nakama.session.token,
-      $nakama.session.refreshToken
-    );
-    Cookies.remove("znambg-token", { path: "/" });
-    Cookies.remove("znambg-refresh_token", { path: "/" });
-    Cookies.remove("znambg-user_id", { path: "/" });
-    Cookies.remove("znambg-device-id", { path: "/" });
-
-    window.location.href = "/login";
+  $: if (!$authStore.isLoggedIn) {
+    goto("/login");
   }
 </script>
 
@@ -63,14 +18,10 @@
 
 <div class="main-container">
   <ZnamLogo classes="w-32" />
-  <div class="flex flex-col">
-    <div class="font-binaria_bold">Твоите жокери:</div>
-    <div class="flex justify-center gap-6 w-full" />
-  </div>
   <Button
     text="Намери игра"
     color={ButtonColors.pink}
-    on:handleClick={async () => await findMatch()}
+    on:handleClick={async () => goto("/game")}
   />
   <Button
     text="Влез в игра"
@@ -82,9 +33,14 @@
     color={ButtonColors.red}
     on:handleClick={() => {}}
   />
-  <button class="btn btn-blue" on:click={async () => await logout()}
-    >Logout</button
-  >
+  <Button
+    text="Излез"
+    color={ButtonColors.red}
+    on:handleClick={() => {
+      getAuth().signOut();
+      goto("/login");
+    }}
+  />
 </div>
 
 <style>
