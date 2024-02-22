@@ -4,6 +4,8 @@
   import Timer from "phosphor-svelte/lib/Timer";
   import { gameState } from "$lib/stores/game";
   import { socket } from "$lib/webSocketConnection";
+  import Button from "$lib/components/shared/button.svelte";
+  import { ButtonColors } from "$lib/components/shared/types";
 
   /*let questionToDisplay: Question | undefined = undefined;
   let count = 0;
@@ -53,16 +55,8 @@
     return "";
   }
 
-  async function sendJokerRemoveQuestion() {
-    try {
-      let matchId = $page.url.searchParams.get("id");
-      if (!matchId) {
-        await goto("/");
-        return;
-      }
-    } catch (error) {
-      console.log(error);
-    }
+  async function useJoker(jokerType: string) {
+    socket.emit("move", { joker: jokerType });
   }
 </script>
 
@@ -117,7 +111,21 @@
         {/each}
       </div>
     {/if}
-    <div on:click={sendJokerRemoveQuestion}>joker 1</div>
+    <Button
+      text="50/50"
+      color={ButtonColors.pink}
+      on:handleClick={() => useJoker("50na50")}
+    />
+    <Button
+      text="steal time"
+      color={ButtonColors.pink}
+      on:handleClick={() => useJoker("stealTime")}
+    />
+    <Button
+      text="changeQuestion"
+      color={ButtonColors.pink}
+      on:handleClick={() => useJoker("changeQuestion")}
+    />
   </div>
 </div>
 
