@@ -87,8 +87,10 @@
     >
       <Timer size={45} />
       <span class="w-24"
-        >{$gameState.me.timeLeftToAnswer / 2 < 10 ? 0 : ""}{(
-          $gameState.me.timeLeftToAnswer / 2
+        >{$gameState.me.timeToAnswerCounter / 2 < 10 ? 0 : ""}{($gameState.me
+          .timeToAnswerCounter > 0
+          ? $gameState.me.timeToAnswerCounter / 2
+          : 0
         ).toFixed(0)}</span
       >
     </div>
