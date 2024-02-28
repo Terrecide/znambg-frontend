@@ -94,7 +94,7 @@
         ).toFixed(0)}</span
       >
     </div>
-    {#if $gameState.question}
+    {#if $gameState.question && Object.keys($gameState.question).length}
       <div class="font-binaria_bold text-xl text-center m-2">
         {$gameState.question.title}
       </div>
@@ -105,7 +105,8 @@
               $gameState.me.yourAnswer,
               $gameState.me.correctAnswer,
               i
-            )}"
+            )} {answer.disabled ? 'answer-btn--disabled' : ''}"
+            disabled={answer.disabled}
             on:click={async () => await answerQuestion(i)}
           >
             {answer.text}
@@ -165,6 +166,9 @@
   }
   .answer-btn:focus-visible {
     outline: theme("colors.green-dark") auto 1px;
+  }
+  .answer-btn--disabled {
+    @apply bg-gray-3 opacity-50;
   }
 
   .answer-btn--correct {
