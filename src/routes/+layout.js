@@ -1,0 +1,16 @@
+// since there's no dynamic data here, we can prerender
+// it so that it gets served as a static asset in production
+import { firebaseConfig } from '$lib/firebaseConfig';
+import { initializeApp, getApps, getApp } from 'firebase/app';
+
+export const prerender = true;
+export async function load() {
+	try {
+		(await getApps().length) === 0 ? await initializeApp(firebaseConfig) : getApp();
+		return {};
+	} catch (error) {
+		console.log(error)
+		return {}
+	}
+
+}

@@ -1,21 +1,19 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
   import { page } from "$app/stores";
-  import { nakama } from "$lib/stores/nakama";
-  import {
-    gameStateStore,
-    type CorrectAnswerMessage,
-    type Question,
-  } from "$lib/stores/quiz";
   import Timer from "phosphor-svelte/lib/Timer";
+  import { gameState } from "$lib/stores/game";
+  import { socket } from "$lib/webSocketConnection";
+  import Button from "$lib/components/shared/button.svelte";
+  import { ButtonColors } from "$lib/components/shared/types";
 
-  let questionToDisplay: Question | undefined = undefined;
+  /*let questionToDisplay: Question | undefined = undefined;
   let count = 0;
   let counterFn = setInterval(timer, 10); //10 will  run it every 100th of a second
 
   $: counterToDisplay = 0;
 
-  function timer() {
+   function timer() {
     if (count <= 0) {
       clearInterval(counterFn);
       counterToDisplay = 0;
@@ -36,64 +34,45 @@
     clearInterval(counterFn);
     count = 1000;
     counterFn = setInterval(timer, 10);
-  }
+  } */
 
-  async function sendAnswer(questionId: string, answerId: string) {
-    try {
-      // ep4
-      clearInterval(counterFn);
-      let data = { questionId, answerId };
-      let matchId = $page.url.searchParams.get("id");
-      if (!matchId) {
-        await goto("/");
-        return;
-      }
-
-      await $nakama.socket?.sendMatchState(matchId, 4, JSON.stringify(data));
-      console.log("Answer data sent");
-    } catch (error) {
-      console.log(error);
-    }
+  function answerQuestion(answerIndex: number) {
+    socket.emit("move", { answer: answerIndex });
   }
 
   function buttonColor(
-    correctAnswer: CorrectAnswerMessage | null,
-    answerId: string
+    yourAnswer: number,
+    correctAnswer: number,
+    answerId: number
   ): string {
-    if (correctAnswer) {
-      if (
-        correctAnswer.correctAnswerId !== answerId &&
-        correctAnswer.playerAnswerId !== answerId
-      ) {
-        return "";
-      } else if (
-        correctAnswer.correctAnswerId === correctAnswer.playerAnswerId ||
-        correctAnswer.correctAnswerId === answerId
-      ) {
-        return "answer-btn--correct";
-      } else if (correctAnswer.playerAnswerId === answerId) {
-        return "answer-btn--incorrect";
-      }
+    if (correctAnswer !== answerId && yourAnswer !== answerId) {
+      return "";
+    } else if (correctAnswer === yourAnswer || correctAnswer === answerId) {
+      return "answer-btn--correct";
+    } else if (yourAnswer === answerId) {
+      return "answer-btn--incorrect";
     }
     return "";
+  }
+
+  async function useJoker(jokerType: string) {
+    socket.emit("move", { joker: jokerType });
   }
 </script>
 
 <div class="main-container justify-start">
   <div class="self-start grid grid-cols-2 border border-collapse w-full">
-    {#if $nakama.presences}
-      {#each $nakama.presences as player, i}
+    {#if $gameState.players}
+      {#each Object.keys($gameState.players) as playerKey, i}
         <div class="border relative player-progress-container--{i + 1}">
-          {player.username}
+          <!-- {player.username} -->
+          asd123
           <div
             class="player-progress player-progress--{i + 1}"
-            style={$gameStateStore.playersProgress[player.user_id]
-              .currentQuestionIndex !== null
+            style={$gameState.players[playerKey].currentQuestionIndex !== null
               ? `width: ${
-                  (($gameStateStore.playersProgress[player.user_id]
-                    .currentQuestionIndex +
-                    1) /
-                    $gameStateStore.questions.length) *
+                  (($gameState.players[playerKey].currentQuestionIndex + 1) /
+                    10) /* questions length is 10 */ *
                   100
                 }%`
               : "visibility: hidden"}
@@ -108,28 +87,48 @@
     >
       <Timer size={45} />
       <span class="w-24"
-        >{counterToDisplay < 10 && 0}{counterToDisplay.toFixed(2)}</span
+        >{$gameState.me.timeToAnswerCounter / 2 < 10 ? 0 : ""}{($gameState.me
+          .timeToAnswerCounter > 0
+          ? $gameState.me.timeToAnswerCounter / 2
+          : 0
+        ).toFixed(0)}</span
       >
     </div>
-    {#if questionToDisplay}
+    {#if $gameState.question && Object.keys($gameState.question).length}
       <div class="font-binaria_bold text-xl text-center m-2">
-        {questionToDisplay.title}
+        {$gameState.question.title}
       </div>
       <div class="grid grid-cols-1 justify-between gap-4 w-full">
-        {#each questionToDisplay.answers as answer}
+        {#each $gameState.question.answers as answer, i}
           <button
             class="answer-btn {buttonColor(
-              $gameStateStore.correctAnswer,
-              answer._id
-            )}"
-            on:click={async () =>
-              await sendAnswer(questionToDisplay._id, answer._id)}
+              $gameState.me.yourAnswer,
+              $gameState.me.correctAnswer,
+              i
+            )} {answer.disabled ? 'answer-btn--disabled' : ''}"
+            disabled={answer.disabled}
+            on:click={async () => await answerQuestion(i)}
           >
             {answer.text}
           </button>
         {/each}
       </div>
     {/if}
+    <Button
+      text="50/50"
+      color={ButtonColors.pink}
+      on:handleClick={() => useJoker("50na50")}
+    />
+    <Button
+      text="steal time"
+      color={ButtonColors.pink}
+      on:handleClick={() => useJoker("stealTime")}
+    />
+    <Button
+      text="changeQuestion"
+      color={ButtonColors.pink}
+      on:handleClick={() => useJoker("changeQuestion")}
+    />
   </div>
 </div>
 
@@ -167,6 +166,9 @@
   }
   .answer-btn:focus-visible {
     outline: theme("colors.green-dark") auto 1px;
+  }
+  .answer-btn--disabled {
+    @apply bg-gray-3 opacity-50;
   }
 
   .answer-btn--correct {

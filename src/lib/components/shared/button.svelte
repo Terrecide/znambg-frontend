@@ -4,14 +4,11 @@
 
   export let color: ButtonColors = ButtonColors.green;
   export let text = "";
+  export let type: "button" | "submit" | "reset" | null | undefined = "button";
   const dispatch = createEventDispatcher();
 </script>
 
-<button
-  class="btn {color}"
-  type="button"
-  on:click={() => dispatch("handleClick")}
->
+<button class="btn {color}" {type} on:click={() => dispatch("handleClick")}>
   {text}
 </button>
 

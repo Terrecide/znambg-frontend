@@ -3,6 +3,8 @@
   import Button from "$lib/components/shared/button.svelte";
   import { ButtonColors } from "$lib/components/shared/types";
   import { gameStateStore } from "$lib/stores/quiz";
+  import { FacebookLogo, GoogleLogo } from "phosphor-svelte";
+  import { gameState } from "$lib/stores/game";
 
   $: maxAnswer = Math.max(
     ...$gameStateStore.podium.map((podium) => podium.score)
@@ -11,21 +13,29 @@
 
 <div class="main-container">
   <div class="grid grid-cols-4 gap-2 h-16 w-full">
-    {#each $gameStateStore.podium as podium, i (podium.userId)}
+    {#each Object.keys($gameState.players) as playerKey, i (playerKey)}
       <div class="flex flex-col w-full text-center">
         <div class="flex grow pb-2">
           <div
             class="relative min-height-2 podium player-podium--{i + 1}"
-            style="height: {(podium.score / maxAnswer) * 100}%"
+            style="height: {($gameState.players[playerKey].score / maxAnswer) *
+              100}%"
           >
             <div class="absolute left-1/2">
               <Avatar />
             </div>
           </div>
         </div>
-        <span>{Math.floor(podium.score)}</span>
+        <span>{Math.floor($gameState.players[playerKey].score)}</span>
       </div>
     {/each}
+  </div>
+  <div class="flex flex-col">
+    <div class="font-binaria_bold">Предизвикай приятели</div>
+    <div class="flex justify-center gap-6 w-full">
+      <FacebookLogo size={24} />
+      <GoogleLogo size={24} />
+    </div>
   </div>
 
   <Button

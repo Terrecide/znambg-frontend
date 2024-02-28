@@ -4,16 +4,17 @@
   export let error = "";
   export let value = "";
   export let type = "text";
+  export let name = "";
 
   function typeAction(node) {
     node.type = type;
   }
 </script>
 
-<div>
+<div class="w-full">
   <label>
     {label}
-    <input class="input" use:typeAction bind:value {placeholder} />
+    <input class="input" use:typeAction bind:value {placeholder} {name} />
   </label>
   {#if error}
     <p class="error">{error}</p>
