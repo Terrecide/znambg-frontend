@@ -102,7 +102,7 @@
         {#each $gameState.question.answers as answer, i}
           <button
             class="answer-btn {buttonColor(
-              $gameState.me.yourAnswer,
+              $gameState.me.answerIndex,
               $gameState.me.correctAnswer,
               i
             )} {answer.disabled ? 'answer-btn--disabled' : ''}"
