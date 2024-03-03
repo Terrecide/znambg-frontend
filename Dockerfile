@@ -23,5 +23,5 @@ COPY --from=sk-build /usr/src/app/package-lock.json /usr/src/app/package-lock.js
 
 COPY --from=sk-build /usr/src/app/build /usr/src/app/build
 
-EXPOSE 3000
+EXPOSE 80
 CMD ["node", "build/index.js"]
