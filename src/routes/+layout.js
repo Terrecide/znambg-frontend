@@ -12,5 +12,4 @@ export async function load() {
 		console.log(error)
 		return {}
 	}
-
 }
