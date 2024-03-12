@@ -13,16 +13,19 @@
 
 <div class="main-container">
   <div class="players">
-    {#if $gameState.required}
-      {#each new Array($gameState.required) as _, i}
+    <div class="text-center font-bold">
+      Играта ще започне с {$gameState.required}ма играчи
+    </div>
+    {#if $gameState.current}
+      {#each new Array($gameState.current) as _, i}
         <div class="player player-{i + 1}">
-          <Avatar />{i}
+          <Avatar />Играч {i + 1}
         </div>
       {/each}
-      {#if $gameState.required < 4}
-        {#each new Array(4 - $gameState.required) as _}
+      {#if $gameState.current < 4}
+        {#each new Array(4 - $gameState.current) as _}
           <div class="player no-player">
-            <Avatar empty={true} />Търси се играч
+            <Avatar empty={true} />Търси се играч...
           </div>
         {/each}
       {/if}

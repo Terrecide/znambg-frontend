@@ -18,29 +18,33 @@
 
 <div class="main-container">
   <ZnamLogo classes="w-32" />
-  <Button
-    text="Намери игра"
-    color={ButtonColors.pink}
-    on:handleClick={async () => goto("/game")}
-  />
-  <Button
-    text="Влез в игра"
-    color={ButtonColors.green}
-    on:handleClick={() => {}}
-  />
-  <Button
-    text="Създай игра"
-    color={ButtonColors.red}
-    on:handleClick={() => {}}
-  />
-  <Button
-    text="Излез"
-    color={ButtonColors.red}
-    on:handleClick={() => {
-      getAuth().signOut();
-      goto("/login");
-    }}
-  />
+  <div class="flex flex-col gap-4 w-48">
+    <Button
+      text="Намери игра"
+      color={ButtonColors.pink}
+      on:handleClick={async () => goto("/game")}
+    />
+    <Button
+      disabled
+      text="Влез в игра"
+      color={ButtonColors.green}
+      on:handleClick={() => {}}
+    />
+    <Button
+      disabled
+      text="Създай игра"
+      color={ButtonColors.red}
+      on:handleClick={() => {}}
+    />
+    <Button
+      text="Излез"
+      color={ButtonColors.red}
+      on:handleClick={() => {
+        getAuth().signOut();
+        goto("/login");
+      }}
+    />
+  </div>
 </div>
 
 <style>

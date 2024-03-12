@@ -5,36 +5,8 @@
   import { gameState } from "$lib/stores/game";
   import { socket } from "$lib/webSocketConnection";
   import Button from "$lib/components/shared/button.svelte";
-  import { ButtonColors } from "$lib/components/shared/types";
-
-  /*let questionToDisplay: Question | undefined = undefined;
-  let count = 0;
-  let counterFn = setInterval(timer, 10); //10 will  run it every 100th of a second
-
-  $: counterToDisplay = 0;
-
-   function timer() {
-    if (count <= 0) {
-      clearInterval(counterFn);
-      counterToDisplay = 0;
-      return;
-    }
-
-    count--;
-    counterToDisplay = count / 100;
-  }
-
-  $: if ($gameStateStore.changeQuestion) {
-    questionToDisplay =
-      $gameStateStore.questions[
-        $gameStateStore.changeQuestion.nextQuestionIndex
-      ];
-
-    $gameStateStore.changeQuestion = null;
-    clearInterval(counterFn);
-    count = 1000;
-    counterFn = setInterval(timer, 10);
-  } */
+  import { ButtonColors, JokerTypes } from "$lib/components/shared/types";
+  import { ArrowBendUpRight, HourglassMedium } from "phosphor-svelte";
 
   function answerQuestion(answerIndex: number) {
     socket.emit("move", { answer: answerIndex });
@@ -87,8 +59,7 @@
     >
       <Timer size={45} />
       <span class="w-24"
-        >{$gameState.me.timeToAnswerCounter / 2 < 10 ? 0 : ""}{($gameState.me
-          .timeToAnswerCounter > 0
+        >{($gameState.me.timeToAnswerCounter > 0
           ? $gameState.me.timeToAnswerCounter / 2
           : 0
         ).toFixed(0)}</span
@@ -114,21 +85,32 @@
         {/each}
       </div>
     {/if}
-    <Button
-      text="50/50"
-      color={ButtonColors.pink}
-      on:handleClick={() => useJoker("50na50")}
-    />
-    <Button
-      text="steal time"
-      color={ButtonColors.pink}
-      on:handleClick={() => useJoker("stealTime")}
-    />
-    <Button
-      text="changeQuestion"
-      color={ButtonColors.pink}
-      on:handleClick={() => useJoker("changeQuestion")}
-    />
+    <div class="flex gap-2 justify-center mt-2">
+      <Button
+        disabled={!$gameState.me.availableJokers.includes(JokerTypes.fifty)}
+        text="50/50"
+        color={ButtonColors.purple}
+        on:handleClick={async () => useJoker(JokerTypes.fifty)}
+      />
+      <Button
+        disabled={!$gameState.me.availableJokers.includes(
+          JokerTypes.changeQuestion
+        )}
+        text=""
+        color={ButtonColors.purple}
+        on:handleClick={async () => useJoker(JokerTypes.changeQuestion)}
+      >
+        <ArrowBendUpRight size={24} weight="fill" slot="icon" />
+      </Button>
+      <Button
+        disabled={!$gameState.me.availableJokers.includes(JokerTypes.stealTime)}
+        text=""
+        color={ButtonColors.purple}
+        on:handleClick={async () => useJoker(JokerTypes.stealTime)}
+      >
+        <HourglassMedium size={24} weight="fill" slot="icon" />
+      </Button>
+    </div>
   </div>
 </div>
 
@@ -162,7 +144,7 @@
     @apply bg-red border-red-dark;
   }
   .answer-btn {
-    @apply text-rg text-gray-6 py-2 px-4 border border-pink-light bg-transparent rounded-2xl w-full;
+    @apply text-rg text-gray-6 py-2 px-4 border border-pink-light bg-white rounded-2xl w-full;
   }
   .answer-btn:focus-visible {
     outline: theme("colors.green-dark") auto 1px;

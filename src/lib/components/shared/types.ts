@@ -2,6 +2,13 @@ export enum ButtonColors {
   green = "btn-green",
   pink = "btn-pink",
   red = "btn-red",
+  purple = "btn-purple",
+}
+
+export enum JokerTypes {
+  fifty = "50na50",
+  stealTime = "stealTime",
+  changeQuestion = "changeQuestion",
 }
 
 // The complete set of opcodes used for communication between clients and server.
