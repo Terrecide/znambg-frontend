@@ -36,9 +36,13 @@
   <div class="self-start grid grid-cols-2 border border-collapse w-full">
     {#if $gameState.players}
       {#each Object.keys($gameState.players) as playerKey, i}
-        <div class="border relative player-progress-container--{i + 1}">
+        <div
+          class="border border-black relative player-progress-container--{i +
+            1}"
+        >
           <!-- {player.username} -->
-          asd123
+
+          <span class="ml-2">{playerKey}</span>
           <div
             class="player-progress player-progress--{i + 1}"
             style={$gameState.players[playerKey].currentQuestionIndex !== null

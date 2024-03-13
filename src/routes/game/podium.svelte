@@ -2,17 +2,17 @@
   import Avatar from "$lib/components/shared/avatar.svelte";
   import Button from "$lib/components/shared/button.svelte";
   import { ButtonColors } from "$lib/components/shared/types";
-  import { gameStateStore } from "$lib/stores/quiz";
   import { FacebookLogo, GoogleLogo } from "phosphor-svelte";
   import { gameState } from "$lib/stores/game";
 
   $: maxAnswer = Math.max(
-    ...$gameStateStore.podium.map((podium) => podium.score)
+    ...Object.values($gameState.players).map((player) => player.score)
   );
 </script>
 
 <div class="main-container">
-  <div class="grid grid-cols-4 gap-2 h-16 w-full">
+  <div class="font-binaria_bold pb-2">Събрани точки:</div>
+  <div class="grid grid-cols-4 gap-2 h-40 w-full">
     {#each Object.keys($gameState.players) as playerKey, i (playerKey)}
       <div class="flex flex-col w-full text-center">
         <div class="flex grow pb-2">
