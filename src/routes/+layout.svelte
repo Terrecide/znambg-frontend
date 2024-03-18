@@ -46,7 +46,6 @@
     <main>
       <slot />
     </main>
-    <footer />
   {/await}
 </div>
 
