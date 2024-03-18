@@ -23,7 +23,7 @@
 
 <style>
   .input {
-    @apply text-rg py-2 px-4 border border-pink-light bg-white rounded-2xl w-full;
+    @apply text-rg py-2 px-4 border border-pink-light bg-white bg-opacity-85 rounded-2xl w-full;
   }
   .input::placeholder {
     @apply text-gray-6;

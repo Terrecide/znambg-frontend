@@ -1,12 +1,19 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
   import { page } from "$app/stores";
-  import Timer from "phosphor-svelte/lib/Timer";
   import { gameState } from "$lib/stores/game";
   import { socket } from "$lib/webSocketConnection";
   import Button from "$lib/components/shared/button.svelte";
   import { ButtonColors, JokerTypes } from "$lib/components/shared/types";
-  import { ArrowBendUpRight, HourglassMedium } from "phosphor-svelte";
+  import {
+    ArrowClockwise,
+    CheckCircle,
+    HourglassMedium,
+    Star,
+    Timer,
+  } from "phosphor-svelte";
+  import { flip } from "svelte/animate";
+  import defaultPlayerImg from "$lib/images/player-img.png";
 
   function answerQuestion(answerIndex: number) {
     socket.emit("move", { answer: answerIndex });
@@ -30,39 +37,57 @@
   async function useJoker(jokerType: string) {
     socket.emit("move", { joker: jokerType });
   }
+
+  $: playersSortedByScore = Object.entries($gameState.players)
+    .map(([k, playerValues]) => playerValues)
+    .sort((a, b) => {
+      return b.score - a.score;
+    });
 </script>
 
 <div class="main-container justify-start">
-  <div class="self-start grid grid-cols-2 border border-collapse w-full">
-    {#if $gameState.players}
-      {#each Object.keys($gameState.players) as playerKey, i}
-        <div
-          class="border border-black relative player-progress-container--{i +
-            1}"
-        >
-          <!-- {player.username} -->
-
-          <span class="ml-2">{playerKey}</span>
-          <div
-            class="player-progress player-progress--{i + 1}"
-            style={$gameState.players[playerKey].currentQuestionIndex !== null
-              ? `width: ${
-                  (($gameState.players[playerKey].currentQuestionIndex + 1) /
-                    10) /* questions length is 10 */ *
-                  100
-                }%`
-              : "visibility: hidden"}
-          />
+  {#if $gameState.players && $gameState.me}
+    <div class="flex flex-col justify-between w-full gap-2 flex-wrap">
+      <div class="flex gap-2 info-section w-full">
+        {#each playersSortedByScore as player, i (player.username)}
+          <div class="flex items-center" animate:flip>
+            <span class="pr-1 font-bold text-xl">{i + 1}.</span>
+            <div class="flex flex-col items-center">
+              <img
+                class="rounded-full w-8"
+                src={defaultPlayerImg}
+                alt="player image"
+              />
+              <div>{player.username}asd</div>
+            </div>
+          </div>
+        {/each}
+      </div>
+      <div class="flex flex-col gap-2 self-end">
+        <div class="flex gap-1 text-center info-section !bg-green">
+          <div>
+            <CheckCircle size={20} />
+          </div>
+          <div class="text-center">
+            {$gameState.me.currentQuestionIndex + 1}/{$gameState.globalState
+              .questionsLength}
+          </div>
         </div>
-      {/each}
-    {/if}
-  </div>
-  <div class="flex flex-col w-full grow justify-center">
+        <div class="flex gap-1 text-center info-section !bg-yellow">
+          <div>
+            <Star size={20} />
+          </div>
+          <div>{Math.floor($gameState.me.score)}</div>
+        </div>
+      </div>
+    </div>
+  {/if}
+  <div class="flex flex-col w-full grow justify-start mt-8">
     <div
       class="flex gap-1 items-center justify-center w-full text-2xl font-neuropol"
     >
       <Timer size={45} />
-      <span class="w-24"
+      <span class="w-8"
         >{($gameState.me.timeToAnswerCounter > 0
           ? $gameState.me.timeToAnswerCounter / 2
           : 0
@@ -89,33 +114,36 @@
         {/each}
       </div>
     {/if}
-    <div class="flex gap-2 justify-center mt-2">
-      <Button
-        disabled={!$gameState.me.availableJokers.includes(JokerTypes.fifty)}
-        text="50/50"
-        color={ButtonColors.purple}
-        on:handleClick={async () => useJoker(JokerTypes.fifty)}
-      />
-      <Button
-        disabled={!$gameState.me.availableJokers.includes(
-          JokerTypes.changeQuestion
-        )}
-        text=""
-        color={ButtonColors.purple}
-        on:handleClick={async () => useJoker(JokerTypes.changeQuestion)}
-      >
-        <ArrowBendUpRight size={24} weight="fill" slot="icon" />
-      </Button>
-      <Button
-        disabled={!$gameState.me.availableJokers.includes(JokerTypes.stealTime)}
-        text=""
-        color={ButtonColors.purple}
-        on:handleClick={async () => useJoker(JokerTypes.stealTime)}
-      >
-        <HourglassMedium size={24} weight="fill" slot="icon" />
-      </Button>
-    </div>
   </div>
+</div>
+<div class="flex gap-2 justify-center mt-2 w-full">
+  <Button
+    customStyles="!rounded-full"
+    disabled={!$gameState.me.availableJokers.includes(JokerTypes.fifty)}
+    text="50/50"
+    color={ButtonColors.purple}
+    on:handleClick={async () => useJoker(JokerTypes.fifty)}
+  />
+  <Button
+    customStyles="!rounded-full"
+    disabled={!$gameState.me.availableJokers.includes(
+      JokerTypes.changeQuestion
+    )}
+    text=""
+    color={ButtonColors.purple}
+    on:handleClick={async () => useJoker(JokerTypes.changeQuestion)}
+  >
+    <ArrowClockwise size={28} weight="fill" slot="icon" />
+  </Button>
+  <Button
+    customStyles="!rounded-full"
+    disabled={!$gameState.me.availableJokers.includes(JokerTypes.stealTime)}
+    text=""
+    color={ButtonColors.purple}
+    on:handleClick={async () => useJoker(JokerTypes.stealTime)}
+  >
+    <HourglassMedium size={28} weight="fill" slot="icon" />
+  </Button>
 </div>
 
 <style>
@@ -148,7 +176,7 @@
     @apply bg-red border-red-dark;
   }
   .answer-btn {
-    @apply text-rg text-gray-6 py-2 px-4 border border-pink-light bg-white rounded-2xl w-full;
+    @apply text-rg text-gray-6 py-2 px-4 border border-pink-light bg-white bg-opacity-85 rounded-2xl w-full;
   }
   .answer-btn:focus-visible {
     outline: theme("colors.green-dark") auto 1px;
@@ -163,5 +191,9 @@
 
   .answer-btn--incorrect {
     @apply bg-red-light border border-red-dark;
+  }
+
+  .info-section {
+    @apply font-binaria_bold py-2 px-4 rounded-2xl text-lg bg-gray-2 border border-gray-3 shadow;
   }
 </style>

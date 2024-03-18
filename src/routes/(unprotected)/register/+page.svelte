@@ -4,7 +4,7 @@
   import Input from "$lib/components/shared/input.svelte";
   import Button from "$lib/components/shared/button.svelte";
   import { ButtonColors } from "$lib/components/shared/types";
-  import { FacebookLogo, GoogleLogo } from "phosphor-svelte";
+  import { GoogleLogo } from "phosphor-svelte";
   import * as yup from "yup";
   import { createForm } from "felte";
   import { validator } from "@felte/validator-yup";
@@ -59,11 +59,10 @@
 <div class="main-container">
   <ZnamLogo />
   <h1>Регистрация</h1>
-  <!--  -->
   <form
     use:form
     on:submit|preventDefault
-    class="flex flex-col items-center justify-between gap-4 m-0"
+    class="flex flex-col items-center justify-between gap-4 m-0 w-48"
   >
     <Input type="name" name="name" placeholder="Име" error={$errors["name"]} />
     <Input
@@ -84,19 +83,22 @@
       placeholder="Повтори парола"
       error={$errors["repeatPassword"]}
     />
-    <Button type="submit" text="Регистрирай се" color={ButtonColors.green} />
+    <div class="flex flex-col w-full">
+      <Button type="submit" text="Регистрирай се" color={ButtonColors.green} />
+    </div>
     {#if apiError}
       <p class="error">{apiError}</p>
     {/if}
   </form>
   или
-  <div class="flex justify-center gap-6 w-full">
-    <div class="cursor-pointer" on:click={() => {}}>
-      <FacebookLogo size={24} />
-    </div>
-    <div class="cursor-pointer" on:click={() => loginGoogle()}>
-      <GoogleLogo size={24} />
-    </div>
+  <div class="flex flex-col justify-center gap-4 w-48">
+    <Button
+      text="Логин с Google"
+      color={ButtonColors.gray}
+      on:handleClick={() => loginGoogle()}
+    >
+      <GoogleLogo size={24} slot="icon" />
+    </Button>
   </div>
   <div>
     Имаш акаунт? <a href="/login" class="underline">Влез в профила си</a>

@@ -52,7 +52,7 @@
   <form
     use:form
     on:submit|preventDefault
-    class="flex flex-col items-center justify-between gap-4 m-0"
+    class="flex flex-col items-center justify-between gap-4 m-0 w-48"
   >
     <Input
       type="email"
@@ -66,7 +66,9 @@
       placeholder="Парола"
       error={$errors["password"]}
     />
-    <Button color={ButtonColors.green} text="Влез" type="submit" />
+    <div class="flex flex-col w-full">
+      <Button color={ButtonColors.green} text="Влез" type="submit" />
+    </div>
     {#if apiError}
       <p class="error">{apiError}</p>
     {/if}
@@ -78,13 +80,14 @@
       </a> -->
   </form>
   или
-  <div class="flex justify-center gap-6 w-full">
-    <div class="cursor-pointer">
-      <FacebookLogo size={24} />
-    </div>
-    <div class="cursor-pointer" on:click={() => loginGoogle()}>
-      <GoogleLogo size={24} />
-    </div>
+  <div class="flex flex-col justify-center gap-4 w-48">
+    <Button
+      text="Логин с Google"
+      color={ButtonColors.gray}
+      on:handleClick={() => loginGoogle()}
+    >
+      <GoogleLogo size={24} slot="icon" />
+    </Button>
   </div>
   <div>
     Нямаш акаунт? <a href="/register" class="underline">Регистрирай се</a>.

@@ -32,7 +32,9 @@
     {/if}
   </div>
 
-  <Button color={ButtonColors.red} text="Отказ" on:handleClick={leaveMatch} />
+  <div class="flex flex-col gap-4 w-48">
+    <Button color={ButtonColors.red} text="Отказ" on:handleClick={leaveMatch} />
+  </div>
 </div>
 
 <style>

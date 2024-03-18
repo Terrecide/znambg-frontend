@@ -3,6 +3,7 @@ export enum ButtonColors {
   pink = "btn-pink",
   red = "btn-red",
   purple = "btn-purple",
+  gray = "btn-gray",
 }
 
 export enum JokerTypes {

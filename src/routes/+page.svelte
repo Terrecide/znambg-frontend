@@ -12,8 +12,8 @@
 </script>
 
 <svelte:head>
-  <title>Home</title>
-  <meta name="description" content="Svelte demo app" />
+  <title>Знам</title>
+  <meta name="description" content="Знам app" />
 </svelte:head>
 
 <div class="main-container">

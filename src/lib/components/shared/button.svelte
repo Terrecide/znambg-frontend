@@ -6,22 +6,23 @@
   export let text = "";
   export let type: "button" | "submit" | "reset" | null | undefined = "button";
   export let disabled = false;
+  export let customStyles = "";
   const dispatch = createEventDispatcher();
 </script>
 
 <button
   {disabled}
-  class="btn {color}"
+  class="btn {color} {customStyles}"
   {type}
   on:click={() => dispatch("handleClick")}
 >
-  <slot name="icon" />
-  {text}
+  <span class="pr-1 py-1"> <slot name="icon" /></span>
+  <span class="text-center w-full self-center pt-1">{text}</span>
 </button>
 
 <style>
   .btn {
-    @apply font-binaria_bold py-2 px-4 rounded-2xl text-lg;
+    @apply flex font-binaria_bold py-2 px-4 rounded-2xl text-lg;
   }
 
   .btn:disabled {
@@ -67,5 +68,14 @@
 
   .btn-purple:hover:not(:disabled) {
     @apply bg-purple;
+  }
+
+  .btn-gray {
+    @apply bg-gray-1 border border-gray-3 text-black;
+    box-shadow: 0 5px 0 theme("colors.gray-3");
+  }
+
+  .btn-gray:hover:not(:disabled) {
+    @apply bg-gray-2;
   }
 </style>
