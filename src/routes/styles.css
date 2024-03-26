@@ -38,8 +38,8 @@ h1 {
 }
 
 body {
-	@apply font-binaria_regular bg-ecru;
-	min-height: 100vh;
+	@apply font-binaria_regular bg-ecru overflow-hidden;
+	max-height: 100vh;
 	margin: 0;
 	background-attachment: fixed;
 	background-size: 100vw 100vh;

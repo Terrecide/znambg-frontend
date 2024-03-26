@@ -1,7 +1,6 @@
 <script>
   import { goto } from "$app/navigation";
-  import FacebookLogo from "phosphor-svelte/lib/FacebookLogo";
-  import GoogleLogo from "phosphor-svelte/lib/GoogleLogo";
+  import googleLogo from "$lib/images/google-logo.png";
   import ZnamLogo from "$lib/components/shared/znamLogo.svelte";
   import Input from "$lib/components/shared/input.svelte";
   import Button from "$lib/components/shared/button.svelte";
@@ -79,14 +78,14 @@
         Забравена парола?
       </a> -->
   </form>
-  или
+  <div>или</div>
   <div class="flex flex-col justify-center gap-4 w-48">
     <Button
       text="Логин с Google"
       color={ButtonColors.gray}
       on:handleClick={() => loginGoogle()}
     >
-      <GoogleLogo size={24} slot="icon" />
+      <img alt="google-logo" src={googleLogo} width="30px" slot="icon" />
     </Button>
   </div>
   <div>

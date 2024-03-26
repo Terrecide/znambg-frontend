@@ -1,6 +1,4 @@
 <script lang="ts">
-  import { goto } from "$app/navigation";
-  import { page } from "$app/stores";
   import { gameState } from "$lib/stores/game";
   import { socket } from "$lib/webSocketConnection";
   import Button from "$lib/components/shared/button.svelte";
@@ -11,6 +9,7 @@
     HourglassMedium,
     Star,
     Timer,
+    SpinnerGap,
   } from "phosphor-svelte";
   import { flip } from "svelte/animate";
   import defaultPlayerImg from "$lib/images/player-img.png";
@@ -28,7 +27,9 @@
       return "";
     } else if (correctAnswer === yourAnswer || correctAnswer === answerId) {
       return "answer-btn--correct";
-    } else if (yourAnswer === answerId) {
+    } else if (correctAnswer === undefined && yourAnswer === answerId) {
+      return "answer-btn--selected";
+    } else if (correctAnswer !== yourAnswer) {
       return "answer-btn--incorrect";
     }
     return "";
@@ -45,105 +46,124 @@
     });
 </script>
 
-<div class="main-container justify-start">
-  {#if $gameState.players && $gameState.me}
-    <div class="flex flex-col justify-between w-full gap-2 flex-wrap">
-      <div class="flex gap-2 info-section w-full">
-        {#each playersSortedByScore as player, i (player.username)}
-          <div class="flex items-center" animate:flip>
-            <span class="pr-1 font-bold text-xl">{i + 1}.</span>
-            <div class="flex flex-col items-center">
-              <img
-                class="rounded-full w-8"
-                src={defaultPlayerImg}
-                alt="player image"
-              />
-              <div>{player.username}asd</div>
+<div class="main-container relative">
+  {#if $gameState.me.timeToAnswerCounter <= 4 && !$gameState.me.correctAnswer}
+    <div
+      class="animate-ping absolute w-full h-full bg-red-light opacity-75 z-0"
+    ></div>
+  {/if}
+  <div class="main-container justify-start relative z-10">
+    {#if $gameState.players && $gameState.me}
+      <div class="flex flex-col justify-between w-full gap-2 flex-wrap">
+        <div class="flex gap-2 info-section w-full">
+          {#each playersSortedByScore as player, i (player.username)}
+            <div class="flex items-center" animate:flip>
+              <span class="pr-1 font-bold text-xl">{i + 1}.</span>
+              <div class="flex flex-col items-center">
+                <img
+                  class="rounded-full w-8"
+                  src={defaultPlayerImg}
+                  alt="player image"
+                />
+                <div>{player.username}</div>
+              </div>
+            </div>
+          {/each}
+        </div>
+        <div class="flex flex-col gap-2 self-end">
+          <div class="flex gap-1 text-center info-section !bg-green">
+            <div>
+              <CheckCircle size={20} />
+            </div>
+            <div class="text-center">
+              {$gameState.me.currentQuestionIndex + 1}/{$gameState.globalState
+                .questionsLength}
             </div>
           </div>
-        {/each}
-      </div>
-      <div class="flex flex-col gap-2 self-end">
-        <div class="flex gap-1 text-center info-section !bg-green">
-          <div>
-            <CheckCircle size={20} />
-          </div>
-          <div class="text-center">
-            {$gameState.me.currentQuestionIndex + 1}/{$gameState.globalState
-              .questionsLength}
+          <div class="flex gap-1 text-center info-section !bg-yellow">
+            <div>
+              <Star size={20} />
+            </div>
+            <div>{Math.floor($gameState.me.score)}</div>
           </div>
         </div>
-        <div class="flex gap-1 text-center info-section !bg-yellow">
-          <div>
-            <Star size={20} />
-          </div>
-          <div>{Math.floor($gameState.me.score)}</div>
-        </div>
-      </div>
-    </div>
-  {/if}
-  <div class="flex flex-col w-full grow justify-start mt-8">
-    <div
-      class="flex gap-1 items-center justify-center w-full text-2xl font-neuropol"
-    >
-      <Timer size={45} />
-      <span class="w-8"
-        >{($gameState.me.timeToAnswerCounter > 0
-          ? $gameState.me.timeToAnswerCounter / 2
-          : 0
-        ).toFixed(0)}</span
-      >
-    </div>
-    {#if $gameState.question && Object.keys($gameState.question).length}
-      <div class="font-binaria_bold text-xl text-center m-2">
-        {$gameState.question.title}
-      </div>
-      <div class="grid grid-cols-1 justify-between gap-4 w-full">
-        {#each $gameState.question.answers as answer, i}
-          <button
-            class="answer-btn {buttonColor(
-              $gameState.me.answerIndex,
-              $gameState.me.correctAnswer,
-              i
-            )} {answer.disabled ? 'answer-btn--disabled' : ''}"
-            disabled={answer.disabled}
-            on:click={async () => await answerQuestion(i)}
-          >
-            {answer.text}
-          </button>
-        {/each}
       </div>
     {/if}
+    <div class="flex flex-col w-full grow justify-start mt-8">
+      <div
+        class="flex gap-1 items-center justify-center w-full text-2xl font-neuropol"
+      >
+        <Timer size={45} />
+        <span class="w-8"
+          >{($gameState.me.timeToAnswerCounter > 0
+            ? $gameState.me.timeToAnswerCounter / 2
+            : 0
+          ).toFixed(0)}</span
+        >
+      </div>
+      {#if $gameState.question && Object.keys($gameState.question).length}
+        <div class="font-binaria_bold text-xl text-center m-2">
+          {$gameState.question.title}
+        </div>
+        <div class="grid grid-cols-1 f justify-between gap-4 w-full relative">
+          {#each $gameState.question.answers as answer, i}
+            <!-- {#if $gameState.me.correctAnswer != undefined}
+              <div
+                class="animate-ping absolute h-full w-full rounded-full opacity-75 {$gameState
+                  .me.correctAnswer === $gameState.me.answerIndex
+                  ? 'bg-green-dark'
+                  : 'bg-red-dark'}"
+              ></div>
+            {/if} -->
+            <button
+              class="answer-btn {buttonColor(
+                $gameState.me.answerIndex,
+                $gameState.me.correctAnswer,
+                i
+              )} {answer.disabled ? 'answer-btn--disabled' : ''}"
+              disabled={answer.disabled}
+              on:click={async () => await answerQuestion(i)}
+            >
+              {answer.text}
+            </button>
+          {/each}
+        </div>
+      {:else}
+        <div class="flex justify-center items-center w-full h-36">
+          <SpinnerGap size={35} class="animate-spin" />
+        </div>
+      {/if}
+    </div>
+    <div class="flex gap-2 justify-center my-2 w-full">
+      <Button
+        customStyles="!rounded-full"
+        disabled={!$gameState.me.availableJokers.includes(JokerTypes.fifty)}
+        text="50/50"
+        color={ButtonColors.purple}
+        on:handleClick={async () => useJoker(JokerTypes.fifty)}
+      />
+      <Button
+        customStyles="!rounded-full"
+        disabled={!$gameState.me.availableJokers.includes(
+          JokerTypes.changeQuestion
+        )}
+        text=""
+        color={ButtonColors.purple}
+        on:handleClick={async () => useJoker(JokerTypes.changeQuestion)}
+      >
+        <ArrowClockwise size={28} weight="fill" slot="icon" />
+      </Button>
+      <Button
+        customStyles="!rounded-full"
+        disabled={!$gameState.me.availableJokers.includes(JokerTypes.stealTime)}
+        text=""
+        color={ButtonColors.purple}
+        on:handleClick={async () => useJoker(JokerTypes.stealTime)}
+      >
+        <HourglassMedium size={28} weight="fill" slot="icon" />
+      </Button>
+    </div>
   </div>
-</div>
-<div class="flex gap-2 justify-center mt-2 w-full">
-  <Button
-    customStyles="!rounded-full"
-    disabled={!$gameState.me.availableJokers.includes(JokerTypes.fifty)}
-    text="50/50"
-    color={ButtonColors.purple}
-    on:handleClick={async () => useJoker(JokerTypes.fifty)}
-  />
-  <Button
-    customStyles="!rounded-full"
-    disabled={!$gameState.me.availableJokers.includes(
-      JokerTypes.changeQuestion
-    )}
-    text=""
-    color={ButtonColors.purple}
-    on:handleClick={async () => useJoker(JokerTypes.changeQuestion)}
-  >
-    <ArrowClockwise size={28} weight="fill" slot="icon" />
-  </Button>
-  <Button
-    customStyles="!rounded-full"
-    disabled={!$gameState.me.availableJokers.includes(JokerTypes.stealTime)}
-    text=""
-    color={ButtonColors.purple}
-    on:handleClick={async () => useJoker(JokerTypes.stealTime)}
-  >
-    <HourglassMedium size={28} weight="fill" slot="icon" />
-  </Button>
 </div>
 
 <style>
@@ -191,6 +211,10 @@
 
   .answer-btn--incorrect {
     @apply bg-red-light border border-red-dark;
+  }
+
+  .answer-btn--selected {
+    @apply bg-yellow-light border border-yellow-dark;
   }
 
   .info-section {
