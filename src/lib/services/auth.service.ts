@@ -80,7 +80,7 @@ export async function loginGoogle() {
     generalAlerts.set([
       ...get(generalAlerts),
       {
-        id: uuid(),
+        id: uuidv4(),
         title: "Грешка!",
         description:
           "Нещо се обърка или акаунтът, който избрахте вече съществува!",
@@ -98,7 +98,7 @@ export async function loginFacebook() {
     generalAlerts.set([
       ...get(generalAlerts),
       {
-        id: uuid(),
+        id: uuidv4(),
         title: "Грешка!",
         description:
           "Нещо се обърка или акаунтът, който избрахте вече съществува!",
