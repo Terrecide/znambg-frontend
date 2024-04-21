@@ -51,7 +51,7 @@
   <form
     use:form
     on:submit|preventDefault
-    class="flex flex-col items-center justify-between gap-4 m-0 w-48"
+    class="flex flex-col items-center justify-between gap-4 m-0 w-full"
   >
     <Input
       type="email"
@@ -79,7 +79,7 @@
       </a> -->
   </form>
   <div>или</div>
-  <div class="flex flex-col justify-center gap-4 w-48">
+  <div class="flex flex-col justify-center gap-4 w-full">
     <Button
       text="Логин с Google"
       color={ButtonColors.gray}

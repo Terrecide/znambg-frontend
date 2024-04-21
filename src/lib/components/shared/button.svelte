@@ -10,19 +10,21 @@
   const dispatch = createEventDispatcher();
 </script>
 
-<button
-  {disabled}
-  class="btn {color} {customStyles}"
-  {type}
-  on:click={() => dispatch("handleClick")}
->
-  <span class="pr-1 py-1"> <slot name="icon" /></span>
-  <span class="text-center w-full self-center pt-1">{text}</span>
-</button>
+<div class="flex justify-center w-full">
+  <button
+    {disabled}
+    class="btn {color} {customStyles}"
+    {type}
+    on:click={() => dispatch("handleClick")}
+  >
+    <span class="pr-1 py-1"> <slot name="icon" /></span>
+    <span class="text-center w-full self-center pt-1">{text}</span>
+  </button>
+</div>
 
 <style>
   .btn {
-    @apply flex font-binaria_bold py-2 px-4 rounded-2xl text-lg;
+    @apply flex font-binaria_bold py-2 px-4 rounded-2xl text-lg w-full max-w-48;
   }
 
   .btn:disabled {

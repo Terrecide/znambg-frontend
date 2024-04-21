@@ -11,8 +11,8 @@
   }
 </script>
 
-<div class="w-full">
-  <label>
+<div class="flex flex-col justify-center items-center w-full">
+  <label class="flex justify-center w-full">
     {label}
     <input class="input" use:typeAction bind:value {placeholder} {name} />
   </label>
@@ -23,7 +23,7 @@
 
 <style>
   .input {
-    @apply text-rg py-2 px-4 border border-pink-light bg-white bg-opacity-85 rounded-2xl w-full;
+    @apply flex text-rg py-2 px-4 border border-pink-light bg-white bg-opacity-85 rounded-2xl w-full max-w-48;
   }
   .input::placeholder {
     @apply text-gray-6;

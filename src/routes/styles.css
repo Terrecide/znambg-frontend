@@ -38,7 +38,7 @@ h1 {
 }
 
 body {
-	@apply font-binaria_regular bg-ecru overflow-hidden;
+	@apply font-binaria_regular bg-ecru;
 	max-height: 100vh;
 	margin: 0;
 	background-attachment: fixed;
@@ -47,7 +47,7 @@ body {
 }
 
 .main-container {
-	@apply flex flex-col flex-grow items-center justify-center gap-4 px-6
+	@apply flex flex-col flex-grow items-center justify-center gap-4 p-4
 }
 
 .error {

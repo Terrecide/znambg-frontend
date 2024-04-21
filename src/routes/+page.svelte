@@ -18,7 +18,7 @@
 
 <div class="main-container">
   <ZnamLogo classes="w-32" />
-  <div class="flex flex-col gap-4 w-48">
+  <div class="flex flex-col gap-4 w-full">
     <Button
       text="Намери игра"
       color={ButtonColors.pink}

@@ -38,7 +38,7 @@
     </div>
   </div>
 
-  <div class="flex flex-col gap-4 w-48">
+  <div class="flex flex-col gap-4 w-full">
     <Button
       color={ButtonColors.pink}
       text="Играй отново"

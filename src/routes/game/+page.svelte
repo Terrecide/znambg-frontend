@@ -2,12 +2,21 @@
   import Game from "./game.svelte";
   import Lobby from "./lobby.svelte";
   import Podium from "./podium.svelte";
-  import { io } from "$lib/webSocketConnection.js";
   import { onDestroy, onMount } from "svelte";
   import { gameState } from "$lib/stores/game";
+  import ioClient from "socket.io-client";
+  /*   import authStore from "$lib/stores/authStore"; */
+  import { socketStore } from "$lib/stores/socket";
 
   onMount(() => {
-    io.on("returnState", (message) => {
+    const ENDPOINT = import.meta.env.VITE_ZNAM_BE;
+    const socket = ioClient(ENDPOINT);
+    socketStore.set(socket);
+    /* socket.emit("hello", {
+      username: $authStore.userDetails?.displayName,
+    }); */
+
+    $socketStore.on("returnState", (message) => {
       console.log(message);
       $gameState = message;
       // Handle incoming messages here
@@ -15,7 +24,7 @@
   });
 
   onDestroy(() => {
-    io.removeAllListeners();
+    $socketStore.removeAllListeners();
   });
 </script>
 

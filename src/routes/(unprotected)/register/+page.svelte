@@ -11,6 +11,7 @@
   import { onMount } from "svelte";
   import authStore from "$lib/stores/authStore";
   import { loginGoogle, registerUser } from "$lib/services/auth.service";
+  import googleLogo from "$lib/images/google-logo.png";
 
   let apiError = "";
   let schema = yup.object().shape({
@@ -62,7 +63,7 @@
   <form
     use:form
     on:submit|preventDefault
-    class="flex flex-col items-center justify-between gap-4 m-0 w-48"
+    class="flex flex-col items-center justify-between gap-4 m-0 w-full"
   >
     <Input type="name" name="name" placeholder="Име" error={$errors["name"]} />
     <Input
@@ -91,13 +92,13 @@
     {/if}
   </form>
   или
-  <div class="flex flex-col justify-center gap-4 w-48">
+  <div class="flex flex-col justify-center gap-4 w-full">
     <Button
       text="Логин с Google"
       color={ButtonColors.gray}
       on:handleClick={() => loginGoogle()}
     >
-      <GoogleLogo size={24} slot="icon" />
+      <img alt="google-logo" src={googleLogo} width="30px" slot="icon" />
     </Button>
   </div>
   <div>
