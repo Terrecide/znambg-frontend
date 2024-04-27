@@ -92,7 +92,7 @@
           </div>
         </div>
       {/if}
-      <div class="flex flex-col w-full grow justify-start my-8">
+      <div class="flex flex-col w-full grow justify-start pb-14 mt-2">
         <div
           class="flex gap-1 items-center justify-center w-full text-2xl font-neuropol relative"
         >
@@ -163,7 +163,7 @@
           </div>
         {/if}
       </div>
-      <div class="flex gap-2 justify-center pb-2 absolute sticky bottom-0">
+      <div class="flex gap-2 justify-center py-2 fixed bottom-0">
         <Button
           customStyles="!rounded-full"
           disabled={!$gameState.me.availableJokers.includes(JokerTypes.fifty)}
@@ -228,7 +228,7 @@
     @apply bg-red border-red-dark;
   }
   .answer-btn {
-    @apply text-rg text-gray-6 py-2 px-4 border border-pink-light bg-white bg-opacity-85 rounded-2xl w-full;
+    @apply text-rg text-gray-6 py-2 px-4 border border-gray-3 bg-white  rounded-xl w-full font-bold;
   }
   .answer-btn:focus-visible {
     outline: theme("colors.green-dark") auto 1px;
