@@ -4,6 +4,7 @@ import { firebaseConfig } from '$lib/firebaseConfig';
 import { initializeApp, getApps, getApp } from 'firebase/app';
 
 export const prerender = true;
+export const trailingSlash = 'never';
 export async function load() {
 	try {
 		(await getApps().length) === 0 ? await initializeApp(firebaseConfig) : getApp();

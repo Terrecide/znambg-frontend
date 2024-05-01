@@ -11,6 +11,7 @@ const authStore = writable<{
       nanoseconds: number;
     };
     displayName?: string;
+    uid: string;
     /* photo: {
       name: string;
       url: string;
@@ -21,7 +22,6 @@ const authStore = writable<{
     address: string;
     email: string;
     description: string;
-    uid: string;
     verified?: boolean; */
   } | null;
 }>({

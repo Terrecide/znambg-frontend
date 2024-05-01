@@ -15,18 +15,28 @@
   <div class="grid grid-cols-4 gap-2 h-40 w-full">
     {#each Object.keys($gameState.players) as playerKey, i (playerKey)}
       <div class="flex flex-col w-full text-center">
-        <div class="flex grow pb-2">
+        <div class="flex grow">
           <div
             class="relative min-height-2 podium player-podium--{i + 1}"
             style="height: {($gameState.players[playerKey].score / maxAnswer) *
               100}%"
           >
-            <div class="absolute left-1/2">
+            <!-- <div class="absolute left-1/2">
               <Avatar />
-            </div>
+            </div> -->
           </div>
         </div>
-        <span>{Math.floor($gameState.players[playerKey].score)}</span>
+      </div>
+    {/each}
+  </div>
+  <div class="grid grid-cols-4 gap-2 w-full">
+    {#each Object.keys($gameState.players) as playerKey, i (playerKey)}
+      <div class="flex flex-col w-full text-center">
+        <span class="font-bold"
+          >{$gameState.players[playerKey].displayName}: {Math.floor(
+            $gameState.players[playerKey].score
+          )}</span
+        >
       </div>
     {/each}
   </div>

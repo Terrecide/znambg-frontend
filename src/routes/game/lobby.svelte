@@ -5,27 +5,35 @@
   import { ButtonColors } from "$lib/components/shared/types";
   import Avatar from "$lib/components/shared/avatar.svelte";
   import { gameState } from "$lib/stores/game";
+  import { socketStore } from "$lib/stores/socket";
 
   function leaveMatch() {
+    $socketStore.emit("exit");
     goto("/");
   }
 </script>
 
 <div class="main-container">
   <div class="players">
-    <div class="text-center font-bold">
-      Играта ще започне с {$gameState.required}ма играчи
+    <div class="text-center text-black font-bold text-xl">
+      {#if $page.url.searchParams.get("roomId")}
+        Номер на игра:
+        <br />
+        <span class="text-lg">№: {$page.url.searchParams.get("roomId")}</span>
+      {:else}
+        Търсят се опоненти
+      {/if}
     </div>
-    {#if $gameState.current}
-      {#each new Array($gameState.current) as _, i}
+    {#if $gameState.players}
+      {#each Object.entries($gameState.players).map(([k, playerValues]) => playerValues) as player, i}
         <div class="player player-{i + 1}">
-          <Avatar />Играч {i + 1}
+          {player.displayName}
         </div>
       {/each}
-      {#if $gameState.current < 4}
-        {#each new Array(4 - $gameState.current) as _}
+      {#if Object.entries($gameState.players).map(([k, playerValues]) => playerValues).length < 4}
+        {#each new Array(4 - Object.entries($gameState).map(([k, playerValues]) => playerValues).length) as _}
           <div class="player no-player">
-            <Avatar empty={true} />Търси се играч...
+            <!-- <Avatar empty={true} /> -->Търси се играч...
           </div>
         {/each}
       {/if}
@@ -44,11 +52,11 @@
   }
 
   .player-1 {
-    @apply bg-purple-light border border-purple;
+    @apply bg-purple-light border border-purple text-white;
   }
 
   .player-2 {
-    @apply bg-green-light border border-green;
+    @apply bg-green-light border border-green text-white;
   }
 
   .player-3 {

@@ -15,6 +15,7 @@
   import { flip } from "svelte/animate";
   import defaultPlayerImg from "$lib/images/player-img.png";
   import { socketStore } from "$lib/stores/socket";
+  import type { Player } from "$lib/stores/game";
 
   function answerQuestion(answerIndex: number) {
     $socketStore.emit("move", { answer: answerIndex });
@@ -41,6 +42,7 @@
     $socketStore.emit("move", { joker: jokerType });
   }
 
+  let playersSortedByScore: Player[] | undefined = undefined;
   $: playersSortedByScore = Object.entries($gameState.players)
     .map(([k, playerValues]) => playerValues)
     .sort((a, b) => {
@@ -49,7 +51,7 @@
 </script>
 
 <div class="flex flex-col relative overflow-hidden min-h-screen">
-  {#if $gameState.me.timeToAnswerCounter <= 4 && !$gameState.me.correctAnswer}
+  {#if $gameState.me?.timeToAnswerCounter <= 4 && !$gameState.me?.correctAnswer}
     <div
       class="animate-ping absolute w-full h-full bg-red-light opacity-75 z-0 overflow-hidden"
     ></div>
@@ -59,19 +61,21 @@
       {#if $gameState.players && $gameState.me}
         <div class="flex flex-col justify-between w-full gap-2 flex-wrap">
           <div class="flex gap-2 info-section w-full">
-            {#each playersSortedByScore as player, i (player.username)}
-              <div class="flex items-center" animate:flip>
-                <span class="pr-1 font-bold text-xl">{i + 1}.</span>
-                <div class="flex flex-col items-center">
-                  <img
-                    class="rounded-full w-8"
-                    src={defaultPlayerImg}
-                    alt="player image"
-                  />
-                  <div>{player.username}</div>
+            {#if playersSortedByScore}
+              {#each playersSortedByScore as player, i (player.uid)}
+                <div class="flex items-center" animate:flip>
+                  <span class="pr-1 font-bold text-xl">{i + 1}.</span>
+                  <div class="flex flex-col items-center">
+                    <!-- <img
+                  class="rounded-full w-8"
+                  src={defaultPlayerImg}
+                  alt="player image"
+                /> -->
+                    <div>{player.displayName}</div>
+                  </div>
                 </div>
-              </div>
-            {/each}
+              {/each}
+            {/if}
           </div>
           <div class="flex gap-2 self-end">
             <div class="flex gap-1 text-center info-section !bg-yellow">
@@ -86,7 +90,7 @@
               </div>
               <div class="text-center">
                 {$gameState.me.currentQuestionIndex + 1}/{$gameState.globalState
-                  .questionsLength}
+                  ?.questionsLength}
               </div>
             </div>
           </div>
@@ -130,8 +134,8 @@
                 <CaretDown size={15} weight="fill" />
               </span>
             </div> -->
-            {($gameState.me.timeToAnswerCounter > 0
-              ? $gameState.me.timeToAnswerCounter / 2
+            {($gameState.me?.timeToAnswerCounter > 0
+              ? $gameState.me?.timeToAnswerCounter / 2
               : 0
             ).toFixed(0)}</span
           >
@@ -146,8 +150,8 @@
             {#each $gameState.question.answers as answer, i}
               <button
                 class="answer-btn {buttonColor(
-                  $gameState.me.answerIndex,
-                  $gameState.me.correctAnswer,
+                  $gameState.me?.answerIndex,
+                  $gameState.me?.correctAnswer,
                   i
                 )} {answer.disabled ? 'answer-btn--disabled' : ''}"
                 disabled={answer.disabled}

@@ -5,9 +5,42 @@
   import { ButtonColors } from "$lib/components/shared/types";
   import { getAuth } from "firebase/auth";
   import authStore from "$lib/stores/authStore";
+  import JoinGameModal from "$lib/components/mainMenu/joinGameModal.svelte";
 
   $: if (!$authStore.isLoggedIn) {
     goto("/login");
+  }
+  const ENDPOINT = import.meta.env.VITE_ZNAM_BE;
+  let joinGameModal;
+
+  async function joinRandomGame() {
+    try {
+      const response = await fetch(ENDPOINT + "/allgames");
+      if (!response.ok) {
+        return;
+      }
+      const rooms = await response.json();
+      const nonPrivateRooms = rooms.filter(
+        (room) =>
+          !room.roomData.roomData || room.roomData.roomData.private !== true
+      );
+      if (nonPrivateRooms.length > 0) {
+        goto("/game?roomId=" + nonPrivateRooms[0].roomId);
+      } else {
+        createRoom();
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  function createRoom(privateRoom = false) {
+    const roomId = Math.random().toString(36).slice(-6);
+    if (privateRoom) {
+      goto("/game?private=true&roomId=" + roomId);
+    } else {
+      goto("/game?roomId=" + roomId);
+    }
   }
 </script>
 
@@ -22,19 +55,17 @@
     <Button
       text="Намери игра"
       color={ButtonColors.pink}
-      on:handleClick={async () => goto("/game")}
+      on:handleClick={joinRandomGame}
     />
     <Button
-      disabled
       text="Влез в игра"
       color={ButtonColors.green}
-      on:handleClick={() => {}}
+      on:handleClick={joinGameModal.handleToggleModal}
     />
     <Button
-      disabled
       text="Създай игра"
       color={ButtonColors.red}
-      on:handleClick={() => {}}
+      on:handleClick={() => createRoom(true)}
     />
     <Button
       text="Излез"
@@ -46,6 +77,7 @@
     />
   </div>
 </div>
+<JoinGameModal bind:this={joinGameModal} />
 
 <style>
   section {
