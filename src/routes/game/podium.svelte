@@ -4,10 +4,23 @@
   import { ButtonColors } from "$lib/components/shared/types";
   import { FacebookLogo, GoogleLogo } from "phosphor-svelte";
   import { gameState } from "$lib/stores/game";
+  import { socketStore } from "$lib/stores/socket";
+  import { goto } from "$app/navigation";
 
   $: maxAnswer = Math.max(
     ...Object.values($gameState.players).map((player) => player.score)
   );
+
+  function leaveMatch() {
+    $socketStore.emit("exit");
+    goto("/");
+  }
+
+  function joinRandomGame() {
+    $socketStore.emit("exit");
+    const roomId = Math.random().toString(36).slice(-6);
+    window.location.href = "/game?roomId=" + roomId;
+  }
 </script>
 
 <div class="main-container">
@@ -52,16 +65,12 @@
     <Button
       color={ButtonColors.pink}
       text="Играй отново"
-      on:handleClick={() => {
-        window.location.href = "/game";
-      }}
+      on:handleClick={joinRandomGame}
     />
     <Button
       color={ButtonColors.green}
       text="Начало"
-      on:handleClick={() => {
-        window.location.href = "/";
-      }}
+      on:handleClick={leaveMatch}
     />
   </div>
 </div>
