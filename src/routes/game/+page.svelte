@@ -10,6 +10,7 @@
   import authStore from "$lib/stores/authStore";
   import { page } from "$app/stores";
   import { SpinnerGap } from "phosphor-svelte";
+  import Countdown from "./countdown.svelte";
 
   onMount(() => {
     const ENDPOINT = import.meta.env.VITE_ZNAM_BE;
@@ -42,7 +43,9 @@
   });
 </script>
 
-{#if !$gameState?.me && $gameState.players}
+{#if $gameState.beforeStartTimer}
+  <Countdown timer={$gameState.beforeStartTimer} />
+{:else if !$gameState?.me && $gameState.players}
   <Lobby />
 {:else if $gameState?.me?.finished}
   <Podium />

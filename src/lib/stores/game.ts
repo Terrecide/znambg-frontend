@@ -5,13 +5,13 @@ export const gameState = writable<{
   me?: Player;
   players?: Player[];
   question?: Question;
-  countdown?: number;
+  beforeStartTimer?: number;
 }>({
   globalState: undefined,
   me: undefined,
   players: undefined,
   question: undefined,
-  countdown: undefined,
+  beforeStartTimer: undefined,
 });
 
 export type GlobalState = {

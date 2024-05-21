@@ -64,14 +64,22 @@
             {#if playersSortedByScore}
               {#each playersSortedByScore as player, i (player.uid)}
                 <div class="flex items-center" animate:flip>
-                  <span class="pr-1 font-bold text-xl">{i + 1}.</span>
+                  <span class="pr-1 font-bold text-xl text-yellow text-shadow"
+                    >{i + 1}.</span
+                  >
                   <div class="flex flex-col items-center">
                     <!-- <img
                   class="rounded-full w-8"
                   src={defaultPlayerImg}
                   alt="player image"
                 /> -->
-                    <div>{player.displayName}</div>
+                    <div>
+                      {player.displayName}
+                    </div>
+                    <div>
+                      ({player.currentQuestionIndex + 1}/{$gameState.globalState
+                        ?.questionsLength})
+                    </div>
                   </div>
                 </div>
               {/each}
@@ -142,7 +150,7 @@
         </div>
         {#if $gameState.question && Object.keys($gameState.question).length}
           <div
-            class="font-binaria_bold text-xl text-center m-2 text-wrap break-words"
+            class="font-binaria_bold text-2xl text-center m-2 text-wrap break-words"
           >
             {$gameState.question.title}
           </div>
@@ -232,7 +240,7 @@
     @apply bg-red border-red-dark;
   }
   .answer-btn {
-    @apply text-rg text-gray-6 py-2 px-4 border border-gray-3 bg-white  rounded-xl w-full font-bold;
+    @apply text-xl text-gray-6 py-2 px-4 border border-gray-3 bg-white  rounded-xl w-full;
   }
   .answer-btn:focus-visible {
     outline: theme("colors.green-dark") auto 1px;
@@ -263,6 +271,14 @@
 
   .animate-steal-time {
     animation: stealTimeElement 0.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  .text-shadow {
+    text-shadow:
+      1px 0 0 #000,
+      0 -1px 0 #000,
+      0 1px 0 #000,
+      -1px 0 0 #000;
   }
 
   @keyframes pulse {
