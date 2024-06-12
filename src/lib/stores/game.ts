@@ -39,6 +39,7 @@ export type Player = {
   usedJokerTemp: [];
   answerIndex?: number;
   correctAnswer?: number;
+  timeStolenAnimation?: number;
 };
 
 export type Question = {

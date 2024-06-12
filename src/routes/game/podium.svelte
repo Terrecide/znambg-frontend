@@ -6,7 +6,9 @@
   import { gameState } from "$lib/stores/game";
   import { socketStore } from "$lib/stores/socket";
   import { goto } from "$app/navigation";
+  import { page } from "$app/stores";
 
+  const ENDPOINT = import.meta.env.VITE_ZNAM_BE;
   $: maxAnswer = Math.max(
     ...Object.values($gameState.players).map((player) => player.score)
   );
@@ -16,10 +18,39 @@
     goto("/");
   }
 
-  function joinRandomGame() {
+  async function joinRandomGame() {
     $socketStore.emit("exit");
+    try {
+      const response = await fetch(ENDPOINT + "/allgames");
+      if (!response.ok) {
+        return;
+      }
+      const rooms = await response.json();
+      const nonPrivateRooms = rooms.filter(
+        (room) =>
+          !room.roomData.roomData || room.roomData.roomData.private !== true
+      );
+      if (nonPrivateRooms.length > 0) {
+        for (const privateRooms of nonPrivateRooms) {
+          if (privateRooms.roomId != $page.url.searchParams.get("roomId")) {
+            window.location.href = "/game?roomId=" + nonPrivateRooms[0].roomId;
+            return;
+          }
+        }
+      }
+      createRoom();
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  function createRoom(privateRoom = false) {
     const roomId = Math.random().toString(36).slice(-6);
-    window.location.href = "/game?roomId=" + roomId;
+    if (privateRoom) {
+      window.location.href = "/game?private=true&roomId=" + roomId;
+    } else {
+      window.location.href = "/game?roomId=" + roomId;
+    }
   }
 </script>
 

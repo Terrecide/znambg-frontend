@@ -17,6 +17,26 @@
   import { socketStore } from "$lib/stores/socket";
   import type { Player } from "$lib/stores/game";
 
+  const animationDuration = 3000;
+  let playersSortedByScore: Player[] | undefined = undefined;
+  $: playersSortedByScore = Object.entries($gameState.players || {})
+    .map(([k, playerValues]) => playerValues)
+    .sort((a, b) => {
+      return b.score - a.score;
+    });
+  $: stealAnimation = false;
+  $: stolenAnimation = false;
+  let handleStolenTime = $gameState.me?.timeStolenAnimation;
+  $: if ($gameState.me?.timeStolenAnimation) {
+    if (
+      !handleStolenTime ||
+      handleStolenTime != $gameState.me?.timeStolenAnimation
+    ) {
+      handleStolenTime = $gameState.me?.timeStolenAnimation;
+      toggleStolenAnimation();
+    }
+  }
+
   function answerQuestion(answerIndex: number) {
     $socketStore.emit("move", { answer: answerIndex });
   }
@@ -42,16 +62,23 @@
     $socketStore.emit("move", { joker: jokerType });
   }
 
-  let playersSortedByScore: Player[] | undefined = undefined;
-  $: playersSortedByScore = Object.entries($gameState.players)
-    .map(([k, playerValues]) => playerValues)
-    .sort((a, b) => {
-      return b.score - a.score;
-    });
+  function toggleStealAnimation() {
+    stealAnimation = true;
+    setTimeout(() => {
+      stealAnimation = false;
+    }, animationDuration);
+  }
+
+  function toggleStolenAnimation() {
+    stolenAnimation = true;
+    setTimeout(() => {
+      stolenAnimation = false;
+    }, animationDuration);
+  }
 </script>
 
 <div class="flex flex-col relative overflow-hidden min-h-screen">
-  {#if $gameState.me?.timeToAnswerCounter <= 4 && !$gameState.me?.correctAnswer}
+  {#if $gameState.me?.timeToAnswerCounter && $gameState.me?.timeToAnswerCounter <= 4 && !$gameState.me?.correctAnswer}
     <div
       class="animate-ping absolute w-full h-full bg-red-light opacity-75 z-0 overflow-hidden"
     ></div>
@@ -106,47 +133,32 @@
       {/if}
       <div class="flex flex-col w-full grow justify-start pb-14 mt-2">
         <div
-          class="flex gap-1 items-center justify-center w-full text-2xl font-neuropol relative"
+          class="flex gap-1 justify-center w-full text-2xl font-neuropol relative"
         >
-          <Timer size={45} />
-          <span class="w-8 relative">
-            <!-- <div
-              class="absolute w-full h-full text-green-dark text-base font-binaria_regular animate-steal-time"
+          <div class="relative flex items-center">
+            <Timer size={45} />
+            <span class="w-8">
+              {($gameState.me?.timeToAnswerCounter &&
+              $gameState.me?.timeToAnswerCounter > 0
+                ? $gameState.me?.timeToAnswerCounter / 2
+                : 0
+              ).toFixed(0)}</span
             >
-              <span class="absolute -left-4 -top-3">
-                <Plus size={25} />
-              </span>
-              <span class="absolute -right-4 -top-1">
-                <Plus size={20} />
-              </span>
-              <span class="absolute text-lg -right-0 -top-2">
-                <Plus size={15} />
-              </span>
-              <span class="absolute left-2 -bottom-3">
-                <Plus size={20} />
-              </span>
-            </div> -->
-            <!-- <div
-              class="absolute w-full h-full text-red-dark text-base font-binaria_regular animate-steal-time"
-            >
-              <span class="absolute -left-3 -top-2">
-                <CaretDown size={20} weight="fill" />
-              </span>
-              <span class="absolute -right-4 -top-1">
-                <CaretDown size={15} weight="fill" />
-              </span>
-              <span class="absolute text-lg -right-0 -top-2">
-                <CaretDown size={10} weight="fill" />
-              </span>
-              <span class="absolute left-2 -bottom-2">
-                <CaretDown size={15} weight="fill" />
-              </span>
-            </div> -->
-            {($gameState.me?.timeToAnswerCounter > 0
-              ? $gameState.me?.timeToAnswerCounter / 2
-              : 0
-            ).toFixed(0)}</span
-          >
+            {#if stolenAnimation}
+              <div
+                class="absolute -right-8 h-full text-red-dark text-base font-binaria_regular animate-steal-time"
+              >
+                <span class="text-2xl font-bold">-3</span>
+              </div>
+            {/if}
+            {#if stealAnimation}
+              <div
+                class="absolute -right-8 h-full text-green-dark text-base font-binaria_regular animate-steal-time"
+              >
+                <span class="text-2xl font-bold">+5</span>
+              </div>
+            {/if}
+          </div>
         </div>
         {#if $gameState.question && Object.keys($gameState.question).length}
           <div
@@ -178,14 +190,14 @@
       <div class="flex gap-2 justify-center py-2 fixed bottom-0">
         <Button
           customStyles="!rounded-full"
-          disabled={!$gameState.me.availableJokers.includes(JokerTypes.fifty)}
+          disabled={!$gameState.me?.availableJokers.includes(JokerTypes.fifty)}
           text="50/50"
           color={ButtonColors.purple}
           on:handleClick={async () => useJoker(JokerTypes.fifty)}
         />
         <Button
           customStyles="!rounded-full"
-          disabled={!$gameState.me.availableJokers.includes(
+          disabled={!$gameState.me?.availableJokers.includes(
             JokerTypes.changeQuestion
           )}
           text=""
@@ -196,12 +208,15 @@
         </Button>
         <Button
           customStyles="!rounded-full"
-          disabled={!$gameState.me.availableJokers.includes(
+          disabled={!$gameState.me?.availableJokers.includes(
             JokerTypes.stealTime
           )}
           text=""
           color={ButtonColors.purple}
-          on:handleClick={async () => useJoker(JokerTypes.stealTime)}
+          on:handleClick={async () => {
+            useJoker(JokerTypes.stealTime);
+            toggleStealAnimation();
+          }}
         >
           <HourglassMedium size={28} weight="fill" slot="icon" />
         </Button>
