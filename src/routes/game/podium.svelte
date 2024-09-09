@@ -94,13 +94,13 @@
       </div>
     {/each}
   </div>
-  <div class="flex flex-col">
+  <!--   <div class="flex flex-col">
     <div class="font-binaria_bold">Предизвикай приятели</div>
     <div class="flex justify-center gap-6 w-full">
       <FacebookLogo size={24} />
       <GoogleLogo size={24} />
     </div>
-  </div>
+  </div> -->
 
   <div class="flex flex-col gap-4 w-full">
     <Button

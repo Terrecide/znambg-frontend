@@ -1,0 +1,15 @@
+name: quiz_frontend
+
+services:
+  quiz_frontend:
+    build:
+      context: ./..
+      dockerfile: ./docker/Dockerfile
+      args:
+        workspace: quiz_game
+    ports:
+      - 3000:3000
+    volumes:
+      - ../:/app
+    environment:
+      - NODE_ENV=development
