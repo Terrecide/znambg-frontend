@@ -6,11 +6,21 @@
   import Avatar from "$lib/components/shared/avatar.svelte";
   import { gameState } from "$lib/stores/game";
   import { socketStore } from "$lib/stores/socket";
+  import { onMount } from "svelte";
+  import { getAnalytics, logEvent } from "firebase/analytics";
 
   function leaveMatch() {
     $socketStore.emit("exit");
     goto("/");
   }
+
+  onMount(() => {
+    const analytics = getAnalytics();
+    logEvent(analytics, "lobby_joined", {
+      roomId: $page.url.searchParams.get("roomId"),
+      players: JSON.stringify($gameState.players),
+    });
+  });
 </script>
 
 <div class="main-container">

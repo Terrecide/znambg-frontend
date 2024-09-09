@@ -7,6 +7,8 @@
   import { socketStore } from "$lib/stores/socket";
   import { goto } from "$app/navigation";
   import { page } from "$app/stores";
+  import { onMount } from "svelte";
+  import { getAnalytics, logEvent } from "firebase/analytics";
 
   const ENDPOINT = import.meta.env.VITE_ZNAM_BE;
   $: maxAnswer = Math.max(
@@ -52,6 +54,14 @@
       window.location.href = "/game?roomId=" + roomId;
     }
   }
+
+  onMount(() => {
+    const analytics = getAnalytics();
+    logEvent(analytics, "game_finished", {
+      roomId: $page.url.searchParams.get("roomId"),
+      players: JSON.stringify($gameState.players),
+    });
+  });
 </script>
 
 <div class="main-container">

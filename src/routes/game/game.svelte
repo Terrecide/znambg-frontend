@@ -16,6 +16,9 @@
   import defaultPlayerImg from "$lib/images/player-img.png";
   import { socketStore } from "$lib/stores/socket";
   import type { Player } from "$lib/stores/game";
+  import { onMount } from "svelte";
+  import { getAnalytics, logEvent } from "firebase/analytics";
+  import { page } from "$app/stores";
 
   const animationDuration = 3000;
   let playersSortedByScore: Player[] | undefined = undefined;
@@ -75,6 +78,14 @@
       stolenAnimation = false;
     }, animationDuration);
   }
+
+  onMount(() => {
+    const analytics = getAnalytics();
+    logEvent(analytics, "game_started", {
+      roomId: $page.url.searchParams.get("roomId"),
+      players: JSON.stringify($gameState.players),
+    });
+  });
 </script>
 
 <div class="flex flex-col relative overflow-hidden min-h-screen">
