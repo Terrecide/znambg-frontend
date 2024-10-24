@@ -1,5 +1,5 @@
 <script>
-  import logo from "$lib/images/znambg-logo.svg";
+  import logo from "$lib/images/logo.svg";
   export let classes = "w-16";
 </script>
 

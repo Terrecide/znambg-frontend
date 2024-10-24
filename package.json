@@ -3,7 +3,7 @@
 	"version": "0.0.1",
 	"scripts": {
 		"dev": "vite dev",
-		"dockerize": "docker compose -f ./docker/docker-compose.yaml up quiz_frontend",
+		"dockerize": "docker compose -f ./docker/docker-compose.yaml up quiz_frontend --build",
 		"build": "vite build",
 		"preview": "vite preview",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",

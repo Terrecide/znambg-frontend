@@ -6,12 +6,15 @@
   import { getAuth } from "firebase/auth";
   import authStore from "$lib/stores/authStore";
   import JoinGameModal from "$lib/components/mainMenu/joinGameModal.svelte";
+  import JokerModal from "$lib/components/mainMenu/jokerModal.svelte";
+  import { Info, SignOut } from "phosphor-svelte";
 
   $: if (!$authStore.isLoggedIn) {
     goto("/login");
   }
   const ENDPOINT = import.meta.env.VITE_ZNAM_BE;
   let joinGameModal;
+  let jokerModal;
 
   async function joinRandomGame() {
     try {
@@ -49,7 +52,7 @@
   <meta name="description" content="Знам app" />
 </svelte:head>
 
-<div class="main-container">
+<div class="main-container relative">
   <ZnamLogo classes="w-32" />
   <div class="flex flex-col gap-4 w-full">
     <Button
@@ -67,17 +70,26 @@
       color={ButtonColors.red}
       on:handleClick={() => createRoom(true)}
     />
-    <Button
-      text="Излез"
-      color={ButtonColors.red}
-      on:handleClick={() => {
-        getAuth().signOut();
-        goto("/login");
-      }}
-    />
+  </div>
+  <div class="flex justify-center py-2 bg-ecru fixed bottom-0 w-full">
+    <div class="flex gap-2 justify-around max-w-48">
+      <div class="p-2 text-purple" on:click={jokerModal.handleToggleModal}>
+        <Info size={30} />
+      </div>
+      <div
+        class="p-2 text-purple"
+        on:click={() => {
+          getAuth().signOut();
+          goto("/login");
+        }}
+      >
+        <SignOut size={30} />
+      </div>
+    </div>
   </div>
 </div>
 <JoinGameModal bind:this={joinGameModal} />
+<JokerModal bind:this={jokerModal} />
 
 <style>
   section {

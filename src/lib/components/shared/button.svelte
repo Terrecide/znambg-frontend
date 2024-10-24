@@ -17,7 +17,7 @@
     {type}
     on:click={() => dispatch("handleClick")}
   >
-    <span class="pr-1 py-1"> <slot name="icon" /></span>
+    <span> <slot name="icon" /></span>
     <span class="text-center w-full self-center pt-1">{text}</span>
   </button>
 </div>
